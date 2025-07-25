@@ -1,0 +1,142 @@
+# Winette Cursor Rules
+
+This file defines coding standards and principles for the Winette project. Also see `.claude-rules` for AI-specific guidelines.
+
+## Core Principles
+
+### 1. Explicit Contracts for Exported Items
+
+Every function and component exported from a module must have:
+
+- **Explicit typing**: Input parameters and return types fully typed
+- **Unit tests**: Basic tests covering main conditional branches
+- **Storybook stories**: Components displayed in different variants/prop combinations
+
+### 2. Composition Over Configuration
+
+- Prefer many small, focused functions/components over large configurable ones
+- Avoid extensive parameter lists and internal branching
+- Build complex behavior through composition of simple parts
+- Each function should have a single, clear responsibility
+
+### 3. Domain-Driven Structure
+
+- Organize code by domain/feature, not by technical role
+- Group related modules together (components, hooks, styles, utils for the same domain)
+- Example: `src/features/font-selection/` contains components, hooks, styles, and utilities for font selection
+
+### 4. Shared Code Management
+
+- Generic code used in 3+ domains goes in top-level shared locations
+- Use path mapping (`#components/`, `#utils/`, etc.) for clean imports
+- Prefer explicit imports over barrel exports for better tree-shaking
+
+## Code Quality Standards
+
+### 5. Naming Conventions
+
+- Use descriptive, intention-revealing names
+- Prefer `handleUserClick` over `handleClick`
+- Use consistent naming patterns across similar concepts
+- Boolean variables/props start with `is`, `has`, `can`, `should`
+
+### 6. Error Handling
+
+- Use React Error Boundaries for component error isolation
+- Prefer explicit error states over silent failures
+- Use type-safe error handling with discriminated unions
+- Log errors appropriately for debugging
+
+### 7. Performance Awareness
+
+- Avoid premature optimization but be mindful of performance
+- Use React.memo() for expensive pure components
+- Prefer `useCallback` and `useMemo` when dependencies are stable
+- Optimize bundle size through proper code splitting
+
+### 8. Type Safety
+
+- Leverage TypeScript's strict mode capabilities
+- Use branded types for domain-specific IDs
+- Prefer `unknown` over `any` for flexible typing
+- Use assertion functions for runtime type checking
+
+## File and Import Patterns
+
+### 9. File Organization
+
+- One primary export per file (component, hook, utility)
+- Co-locate related files (Component.tsx, Component.css.ts, Component.test.tsx, Component.stories.tsx)
+- Use index.ts files sparingly, only for clean public APIs
+
+### 10. Import/Export Style
+
+- Always use `export` keyword at definition site (not export lists)
+- Group imports: external, internal (#-prefixed), relative
+- Use type-only imports with `import type` when importing only types
+- Prefer named exports over default exports for consistency
+
+## React Patterns
+
+### 11. Component Architecture
+
+- Prefer function components with hooks
+- Use custom hooks to extract complex state logic
+- Keep components focused on presentation logic
+- Use compound components for related UI elements
+
+### 12. State Management
+
+- Use React Query for server state management
+- Prefer local state (useState) over global state when possible
+- Use context sparingly, primarily for theme/user preferences
+- Co-locate state with the components that use it
+
+### 13. Styling with Vanilla Extract
+
+- One style file per component/module
+- Use design tokens and consistent spacing/typography scales
+- Prefer CSS variables for dynamic styling over JavaScript
+- Use sprinkles for utility-first styling when appropriate
+
+## Testing Standards
+
+### 14. Test Organization
+
+- Mirror source structure in test files
+- Focus on behavior testing over implementation details
+- Use Testing Library queries that reflect user interaction
+- Mock external dependencies, test internal logic
+
+### 15. Test Naming
+
+- Describe the expected behavior: `it('should display error message when validation fails')`
+- Group related tests with descriptive `describe` blocks
+- Use consistent test data factories for setup
+
+## Documentation
+
+### 16. Code Documentation
+
+- Use JSDoc for public APIs with examples
+- Prefer self-documenting code over extensive comments
+- Don't add comments that repeat the function name, e.g. `addAndMultiply(a, b, multiplier)` function
+  must not be described with a comment like `add provided arguments and multiply them by the multiplier`
+- Document complex business logic and non-obvious decisions
+- Keep README files focused and actionable
+
+## Git and Deployment
+
+### 17. Commit Standards
+
+- Every commit must pass: tests, linting, type checking
+- Use conventional commit format
+- First line: succinct description of WHAT changed (under 80 chars)
+- Body: explain WHY the change was made (wrap at 120 chars)
+- Avoid detailed explanations of what code changed (visible in diff)
+
+### 18. Branch Management
+
+- Keep branches focused and short-lived
+- Use descriptive branch names: `feat/user-authentication`, `fix/font-loading-error`
+- DO NOT squash commits when merging to maintain precise history

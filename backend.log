@@ -1,0 +1,52 @@
+
+> winette@0.1.0 dev:backend /Users/eryk.napierala/Development/winette
+> tsx watch api/index.ts
+
+[dotenv@17.2.1] injecting env (13) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+🚀 Winette API server running on port 3001
+📊 Health check: http://localhost:3001/health
+📖 OpenAPI spec: http://localhost:3001/api/openapi.json
+❌ Database connection error: {
+  code: '42P01',
+  details: null,
+  hint: null,
+  message: 'relation "public.wine_labels" does not exist'
+}
+GET /api/wine-labels?limit=3 - ::1
+📊 Supabase error details: {
+  message: 'relation "public.wine_labels" does not exist',
+  details: null,
+  hint: null,
+  code: '42P01'
+}
+API Error: {
+  message: 'Failed to fetch wine labels: relation "public.wine_labels" does not exist',
+  stack: 'Error: Failed to fetch wine labels: relation "public.wine_labels" does not exist\n' +
+    '    at createApiError (/Users/eryk.napierala/Development/winette/api/middleware/error-handler.ts:109:17)\n' +
+    '    at <anonymous> (/Users/eryk.napierala/Development/winette/api/routes/wine-labels.ts:104:15)\n' +
+    '    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)',
+  url: '/api/wine-labels?limit=3',
+  method: 'GET',
+  ip: '::1'
+}
+GET /api/wine-labels?limit=3 - 500 - 508ms
+GET /health - ::1
+GET /health - 200 - 29ms
+GET /api/wine-labels?limit=1&offset=1 - ::1
+📊 Supabase error details: {
+  message: 'relation "public.wine_labels" does not exist',
+  details: null,
+  hint: null,
+  code: '42P01'
+}
+API Error: {
+  message: 'Failed to fetch wine labels: relation "public.wine_labels" does not exist',
+  stack: 'Error: Failed to fetch wine labels: relation "public.wine_labels" does not exist\n' +
+    '    at createApiError (/Users/eryk.napierala/Development/winette/api/middleware/error-handler.ts:109:17)\n' +
+    '    at <anonymous> (/Users/eryk.napierala/Development/winette/api/routes/wine-labels.ts:104:15)\n' +
+    '    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)',
+  url: '/api/wine-labels?limit=1&offset=1',
+  method: 'GET',
+  ip: '::1'
+}
+GET /api/wine-labels?limit=1&offset=1 - 500 - 1243ms
