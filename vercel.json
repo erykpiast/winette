@@ -1,0 +1,64 @@
+{
+  "buildCommand": "pnpm run build",
+  "outputDirectory": "dist",
+  "devCommand": "pnpm run dev:frontend",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "framework": "vite",
+  "functions": {
+    "src/backend/index.ts": {
+      "runtime": "nodejs22.x"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/src/backend/index.ts"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/locales/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
+    }
+  ],
+  "env": {
+    "SUPABASE_URL": "$SUPABASE_URL",
+    "SUPABASE_ANON_KEY": "$SUPABASE_ANON_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY": "$SUPABASE_SERVICE_ROLE_KEY",
+    "UPSTASH_REDIS_REST_URL": "$UPSTASH_REDIS_REST_URL",
+    "UPSTASH_REDIS_REST_TOKEN": "$UPSTASH_REDIS_REST_TOKEN",
+    "NEW_RELIC_LICENSE_KEY": "$NEW_RELIC_LICENSE_KEY",
+    "NEW_RELIC_APP_NAME": "winette-api",
+    "NEW_RELIC_NO_CONFIG_FILE": "true"
+  }
+}
