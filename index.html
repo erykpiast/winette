@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Winette - AI-Powered Wine Label Designer</title>
+    <meta name="description" content="Design professional wine bottle labels with AI-powered assistance" />
+
+    <!-- Preload translation files for faster loading -->
+    <link rel="preload" href="/locales/en/translation.json" as="fetch" type="application/json"
+        crossorigin="anonymous" />
+    <link rel="preload" href="/locales/fr/translation.json" as="fetch" type="application/json"
+        crossorigin="anonymous" />
+</head>
+
+<body>
+    <div id="root"></div>
+    <script type="module" src="/src/frontend/main.tsx"></script>
+</body>
+
+</html>

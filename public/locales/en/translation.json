@@ -1,0 +1,61 @@
+{
+  "brand": {
+    "name": "Winette",
+    "tagline": "AI-Powered Wine Label Designer"
+  },
+  "hero": {
+    "title": "Design Professional Wine Labels in Minutes",
+    "description": "Create beautiful, contextually appropriate wine bottle labels with AI-powered assistance. Enter your wine details and let our intelligent system generate professional designs for you."
+  },
+  "test": {
+    "title": "Backend Integration Test",
+    "description": "Testing full-stack communication with real database:",
+    "fetchButton": "Fetch New Random Wine",
+    "wineLabelTitle": "{{name}}",
+    "winery": "Winery",
+    "vintage": "Vintage",
+    "region": "Region",
+    "grapeVariety": "Grape Variety",
+    "alcoholContent": "Alcohol Content",
+    "style": "Style",
+    "tastingNotes": "Tasting Notes"
+  },
+  "phase1": {
+    "title": "Phase 1: Foundation",
+    "subtitle": "Full-stack foundation complete, wine label generator coming soon...",
+    "features": {
+      "projectSetup": "✓ Project setup complete",
+      "reactQuery": "✓ TanStack Query integrated",
+      "errorBoundaries": "✓ Suspense + Error Boundaries",
+      "backendApi": "✓ Express API with rate limiting",
+      "inputForm": "⏳ Core input form",
+      "styleSelection": "⏳ Style selection system",
+      "labelPreview": "⏳ Text-only label preview",
+      "exportFunctionality": "⏳ Basic export functionality"
+    }
+  },
+  "loading": {
+    "title": "Loading...",
+    "description": "Fetching data from the backend..."
+  },
+  "error": {
+    "title": "Something went wrong",
+    "tryAgain": "Try Again",
+    "detailsTitle": "Error Details (Development)"
+  },
+  "footer": {
+    "copyright": "© 2024 Winette. Empowering winemakers with AI-assisted design."
+  },
+  "api": {
+    "fetchError": "Failed to fetch data from server",
+    "createError": "Failed to create wine label",
+    "updateError": "Failed to update wine label",
+    "deleteError": "Failed to delete wine label",
+    "wineLabel": {
+      "notFound": "Wine label not found"
+    },
+    "validation": {
+      "failed": "Validation failed"
+    }
+  }
+}

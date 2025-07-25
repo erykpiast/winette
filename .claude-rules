@@ -1,0 +1,134 @@
+# Claude Rules for Winette
+
+This file contains AI-specific guidelines for working with the Winette codebase. These rules complement the general coding standards defined in `.cursorrules`.
+
+## Reference to Cursor Rules
+
+**IMPORTANT**: Always follow the principles defined in `.cursorrules` as the foundation. This file adds AI-specific considerations and workflows.
+
+## AI-Specific Workflow Guidelines
+
+### 1. Code Generation Approach
+
+- Always generate complete, runnable code (never partial snippets unless specifically requested)
+- Include all necessary imports, types, and dependencies
+- Follow the established project patterns and file structure
+- When creating new features, include the full stack: component, styles, tests, stories
+
+### 2. Consistency Maintenance
+
+- Before making changes, understand existing patterns by examining similar code
+- Match naming conventions, file organization, and coding style exactly
+- Use the project's path mapping (`#components/`, `#utils/`, etc.) consistently
+- Follow the domain-driven structure when adding new features
+
+### 3. Quality Assurance
+
+- When adding exported functions/components, always create:
+  - Proper TypeScript types for all parameters and returns
+  - Basic unit tests covering main branches
+  - Storybook stories showing different states/props
+- Validate that new code follows composition over configuration principle
+- Ensure error handling follows established patterns
+
+### 4. Testing Strategy
+
+- Generate tests that focus on behavior, not implementation
+- Use Testing Library patterns established in existing tests
+- Create realistic test data that reflects actual use cases
+- Mock external dependencies appropriately
+
+### 5. Performance Considerations
+
+- Be mindful of bundle size when adding dependencies
+- Use appropriate React optimization patterns (memo, useCallback, useMemo)
+- Consider code splitting for large features
+- Optimize for development experience without sacrificing runtime performance
+
+## AI-Specific Code Patterns
+
+### 6. Type Generation
+
+- Always provide explicit types for function parameters and returns
+- Use branded types for domain-specific concepts (UserId, WineId, etc.)
+- Leverage TypeScript's discriminated unions for state management
+- Generate helper types that improve developer experience
+
+### 7. Error Handling
+
+- Create type-safe error handling with Result<T, E> patterns when appropriate
+- Use React Error Boundaries for component isolation
+- Generate meaningful error messages for debugging
+- Consider edge cases and error states in component design
+
+### 8. Accessibility
+
+- Generate accessible components by default (proper ARIA attributes, semantic HTML)
+- Consider keyboard navigation patterns
+- Ensure color contrast and responsive design
+- Include accessibility in Storybook stories
+
+## Code Review Guidelines
+
+### 9. Self-Review Process
+
+- Verify all exports have proper types, tests, and stories
+- Check that imports use project path mapping correctly
+- Ensure component composition follows established patterns
+- Validate that domain organization is maintained
+
+### 10. Documentation Generation
+
+- Generate JSDoc comments for public APIs with practical examples
+- Focus on WHY decisions were made, not WHAT the code does
+- Create README updates for new features when appropriate
+- Ensure Storybook stories serve as living documentation
+
+## Integration with Project Tools
+
+### 11. Biome Integration
+
+- Generate code that passes Biome linting without modification
+- Follow the formatting standards (2-space indentation, single quotes, etc.)
+- Use import/export patterns that align with Biome rules
+- Leverage Biome's type checking integration
+
+### 12. Vanilla Extract Styling
+
+- Generate CSS-in-JS using Vanilla Extract patterns
+- Use design tokens and consistent spacing scales
+- Create responsive designs using breakpoint utilities
+- Leverage sprinkles for utility-first styling when appropriate
+
+### 13. React Query Integration
+
+- Use React Query for all server state management
+- Generate proper query keys and invalidation patterns
+- Handle loading, error, and success states appropriately
+- Create reusable query hooks for common operations
+
+## Development Workflow
+
+### 14. Feature Development
+
+1. Analyze domain requirements and existing patterns
+2. Create feature structure following domain organization
+3. Generate component with proper typing and error handling
+4. Create comprehensive tests covering main scenarios
+5. Add Storybook stories showing different states
+6. Generate styles using Vanilla Extract patterns
+7. Verify integration with existing codebase
+
+### 15. Maintenance Tasks
+
+- When refactoring, maintain existing public APIs unless explicitly changing them
+- Update related tests and stories when modifying components
+- Ensure changes don't break existing functionality
+- Follow conventional commit format for all changes
+
+### 16. Debugging Support
+
+- Generate helpful error messages and debugging information
+- Create development-only logging that aids troubleshooting
+- Ensure proper error boundaries prevent cascade failures
+- Add type guards and runtime validations for external data

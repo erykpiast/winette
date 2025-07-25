@@ -1,0 +1,7 @@
+packages:
+  - .
+
+ignoredBuiltDependencies:
+  - '@newrelic/fn-inspect'
+  - '@newrelic/native-metrics'
+  - esbuild
