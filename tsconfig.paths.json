@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "#backend/*": ["./src/backend/*"],
+      "#components/*": ["./src/frontend/components/*"],
+      "#types/*": ["./src/frontend/types/*"],
+      "#utils/*": ["./src/frontend/utils/*"],
+      "#hooks/*": ["./src/frontend/hooks/*"],
+      "#styles/*": ["./src/frontend/styles/*"],
+      "#i18n/*": ["./src/frontend/i18n/*"],
+      "#i18n": ["./src/frontend/i18n/index.ts"],
+      "#lib/*": ["./src/frontend/lib/*"]
+    }
+  }
+}

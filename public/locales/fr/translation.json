@@ -1,0 +1,61 @@
+{
+  "brand": {
+    "name": "Winette",
+    "tagline": "Concepteur d'étiquettes de vin assisté par IA"
+  },
+  "hero": {
+    "title": "Concevez des étiquettes de vin professionnelles en quelques minutes",
+    "description": "Créez de belles étiquettes de bouteilles de vin adaptées au contexte avec l'assistance de l'IA. Entrez les détails de votre vin et laissez notre système intelligent générer des designs professionnels pour vous."
+  },
+  "test": {
+    "title": "Test d'intégration backend",
+    "description": "Test de communication full-stack avec vraie base de données :",
+    "fetchButton": "Récupérer un nouveau vin aléatoire",
+    "wineLabelTitle": "{{name}}",
+    "winery": "Vignoble",
+    "vintage": "Millésime",
+    "region": "Région",
+    "grapeVariety": "Cépage",
+    "alcoholContent": "Teneur en alcool",
+    "style": "Style",
+    "tastingNotes": "Notes de dégustation"
+  },
+  "phase1": {
+    "title": "Phase 1 : Fondation",
+    "subtitle": "Fondation full-stack terminée, générateur d'étiquettes à venir...",
+    "features": {
+      "projectSetup": "✓ Configuration du projet terminée",
+      "reactQuery": "✓ TanStack Query intégré",
+      "errorBoundaries": "✓ Suspense + Error Boundaries",
+      "backendApi": "✓ API Express avec limitation de débit",
+      "inputForm": "⏳ Formulaire de saisie principal",
+      "styleSelection": "⏳ Système de sélection de style",
+      "labelPreview": "⏳ Aperçu d'étiquette texte seulement",
+      "exportFunctionality": "⏳ Fonctionnalité d'export de base"
+    }
+  },
+  "loading": {
+    "title": "Chargement...",
+    "description": "Récupération des données depuis le backend..."
+  },
+  "error": {
+    "title": "Quelque chose s'est mal passé",
+    "tryAgain": "Réessayer",
+    "detailsTitle": "Détails de l'erreur (Développement)"
+  },
+  "footer": {
+    "copyright": "© 2024 Winette. Donner aux vignerons les moyens de concevoir avec l'IA."
+  },
+  "api": {
+    "fetchError": "Échec de la récupération des données du serveur",
+    "createError": "Échec de la création de l'étiquette de vin",
+    "updateError": "Échec de la mise à jour de l'étiquette de vin",
+    "deleteError": "Échec de la suppression de l'étiquette de vin",
+    "wineLabel": {
+      "notFound": "Étiquette de vin introuvable"
+    },
+    "validation": {
+      "failed": "Échec de la validation"
+    }
+  }
+}

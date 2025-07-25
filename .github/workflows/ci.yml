@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Test & Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js and PNPM
+        uses: ./.github/actions/setup-node-pnpm
+
+      - name: Type check
+        run: asdf exec pnpm run type-check
+
+      - name: Lint code
+        run: asdf exec pnpm run lint:code
+
+      - name: Lint documentation
+        run: asdf exec pnpm run lint:md
+
+      - name: Run tests
+        run: asdf exec pnpm run test
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js and PNPM
+        uses: ./.github/actions/setup-node-pnpm
+
+      - name: Build application
+        run: asdf exec pnpm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
