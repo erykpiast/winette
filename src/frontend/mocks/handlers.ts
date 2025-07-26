@@ -75,7 +75,7 @@ const mockWineLabels: WineLabel[] = [
 ];
 
 export const handlers = [
-  // Health check
+  // Health check (development)
   http.get('http://localhost:3001/health', () => {
     return HttpResponse.json({
       status: 'ok',
@@ -84,7 +84,16 @@ export const handlers = [
     });
   }),
 
-  // Get wine labels
+  // Health check (production)
+  http.get('https://winette.vercel.app/health', () => {
+    return HttpResponse.json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      environment: 'production',
+    });
+  }),
+
+  // Get wine labels (development)
   http.get('http://localhost:3001/api/wine-labels', ({ request }) => {
     const url = new URL(request.url);
     const style = url.searchParams.get('style') as WineStyle | null;
@@ -120,7 +129,43 @@ export const handlers = [
     });
   }),
 
-  // Get wine label by ID
+  // Get wine labels (production)
+  http.get('https://winette.vercel.app/api/wine-labels', ({ request }) => {
+    const url = new URL(request.url);
+    const style = url.searchParams.get('style') as WineStyle | null;
+    const region = url.searchParams.get('region');
+    const limit = parseInt(url.searchParams.get('limit') || '10', 10);
+    const offset = parseInt(url.searchParams.get('offset') || '0', 10);
+
+    let filteredLabels = [...mockWineLabels];
+
+    // Filter by style
+    if (style) {
+      filteredLabels = filteredLabels.filter((label) => label.style === style);
+    }
+
+    // Filter by region (partial match)
+    if (region) {
+      filteredLabels = filteredLabels.filter((label) => label.region.toLowerCase().includes(region.toLowerCase()));
+    }
+
+    // Apply pagination
+    const total = filteredLabels.length;
+    // If offset is beyond available data, cycle back to the beginning
+    const adjustedOffset = total > 0 ? offset % total : 0;
+    const paginatedLabels = filteredLabels.slice(adjustedOffset, adjustedOffset + limit);
+    const hasMore = adjustedOffset + limit < total;
+
+    return HttpResponse.json({
+      success: true,
+      data: paginatedLabels,
+      total,
+      hasMore,
+      cached: false,
+    });
+  }),
+
+  // Get wine label by ID (development)
   http.get('http://localhost:3001/api/wine-labels/:id', ({ params }) => {
     const { id } = params;
     const wineLabel = mockWineLabels.find((label) => label.id === id);
@@ -142,7 +187,29 @@ export const handlers = [
     });
   }),
 
-  // Create wine label
+  // Get wine label by ID (production)
+  http.get('https://winette.vercel.app/api/wine-labels/:id', ({ params }) => {
+    const { id } = params;
+    const wineLabel = mockWineLabels.find((label) => label.id === id);
+
+    if (!wineLabel) {
+      return HttpResponse.json(
+        {
+          error: 'NOT_FOUND',
+          message: 'Wine label not found',
+        },
+        { status: 404 },
+      );
+    }
+
+    return HttpResponse.json({
+      success: true,
+      data: wineLabel,
+      cached: false,
+    });
+  }),
+
+  // Create wine label (development)
   http.post('http://localhost:3001/api/wine-labels', async ({ request }) => {
     const body = (await request.json()) as components['schemas']['CreateWineLabelRequest'];
 
@@ -165,7 +232,30 @@ export const handlers = [
     );
   }),
 
-  // Update wine label
+  // Create wine label (production)
+  http.post('https://winette.vercel.app/api/wine-labels', async ({ request }) => {
+    const body = (await request.json()) as components['schemas']['CreateWineLabelRequest'];
+
+    const newWineLabel: WineLabel = {
+      id: `550e8400-e29b-41d4-a716-${Date.now()}`,
+      ...body,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    // Add to mock data (in real app, this would persist)
+    mockWineLabels.push(newWineLabel);
+
+    return HttpResponse.json(
+      {
+        success: true,
+        data: newWineLabel,
+      },
+      { status: 201 },
+    );
+  }),
+
+  // Update wine label (development)
   http.put('http://localhost:3001/api/wine-labels/:id', async ({ params, request }) => {
     const { id } = params;
     const updates = (await request.json()) as components['schemas']['UpdateWineLabelRequest'];
@@ -205,8 +295,71 @@ export const handlers = [
     });
   }),
 
-  // Delete wine label
+  // Update wine label (production)
+  http.put('https://winette.vercel.app/api/wine-labels/:id', async ({ params, request }) => {
+    const { id } = params;
+    const updates = (await request.json()) as components['schemas']['UpdateWineLabelRequest'];
+
+    const labelIndex = mockWineLabels.findIndex((label) => label.id === id);
+
+    if (labelIndex === -1) {
+      return HttpResponse.json(
+        {
+          error: 'NOT_FOUND',
+          message: 'Wine label not found',
+        },
+        { status: 404 },
+      );
+    }
+
+    const updatedLabel = {
+      ...mockWineLabels[labelIndex],
+      updated_at: new Date().toISOString(),
+    } as WineLabel;
+
+    // Update only provided fields
+    if (updates.name !== undefined) updatedLabel.name = updates.name;
+    if (updates.winery !== undefined) updatedLabel.winery = updates.winery;
+    if (updates.vintage !== undefined) updatedLabel.vintage = updates.vintage;
+    if (updates.region !== undefined) updatedLabel.region = updates.region;
+    if (updates.grape_variety !== undefined) updatedLabel.grape_variety = updates.grape_variety;
+    if (updates.alcohol_content !== undefined) updatedLabel.alcohol_content = updates.alcohol_content;
+    if (updates.tasting_notes !== undefined) updatedLabel.tasting_notes = updates.tasting_notes;
+    if (updates.style !== undefined) updatedLabel.style = updates.style;
+
+    mockWineLabels[labelIndex] = updatedLabel;
+
+    return HttpResponse.json({
+      success: true,
+      data: updatedLabel,
+    });
+  }),
+
+  // Delete wine label (development)
   http.delete('http://localhost:3001/api/wine-labels/:id', ({ params }) => {
+    const { id } = params;
+    const labelIndex = mockWineLabels.findIndex((label) => label.id === id);
+
+    if (labelIndex === -1) {
+      return HttpResponse.json(
+        {
+          error: 'NOT_FOUND',
+          message: 'Wine label not found',
+        },
+        { status: 404 },
+      );
+    }
+
+    mockWineLabels.splice(labelIndex, 1);
+
+    return HttpResponse.json({
+      success: true,
+      message: 'Wine label deleted successfully',
+    });
+  }),
+
+  // Delete wine label (production)
+  http.delete('https://winette.vercel.app/api/wine-labels/:id', ({ params }) => {
     const { id } = params;
     const labelIndex = mockWineLabels.findIndex((label) => label.id === id);
 

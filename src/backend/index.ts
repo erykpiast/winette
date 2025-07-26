@@ -30,7 +30,7 @@ app.use(
   cors({
     origin:
       config.NODE_ENV === 'production'
-        ? ['https://winette.vercel.app', 'https://*.vercel.app']
+        ? ['https://winette.vercel.app', 'https://*.vercel.app', 'https://erykpiast.github.io']
         : ['http://localhost:3000', 'http://localhost:5173'],
     credentials: true,
   }),

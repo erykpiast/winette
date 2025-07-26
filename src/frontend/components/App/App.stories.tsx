@@ -55,6 +55,9 @@ export const LoadingState: Story = {
         http.get('http://localhost:3001/api/wine-labels', async () => {
           await delay('infinite'); // This will keep loading indefinitely
         }),
+        http.get('https://winette.vercel.app/api/wine-labels', async () => {
+          await delay('infinite'); // This will keep loading indefinitely
+        }),
       ],
     },
     docs: {
@@ -102,6 +105,16 @@ export const RateLimitError: Story = {
             { status: 429 },
           );
         }),
+        http.get('https://winette.vercel.app/api/wine-labels', () => {
+          return HttpResponse.json(
+            {
+              error: 'RATE_LIMIT_EXCEEDED',
+              message: 'Too many requests. Please try again later.',
+              retryAfter: 60,
+            },
+            { status: 429 },
+          );
+        }),
       ],
     },
     docs: {
@@ -125,6 +138,15 @@ export const EmptyState: Story = {
             cached: false,
           });
         }),
+        http.get('https://winette.vercel.app/api/wine-labels', () => {
+          return HttpResponse.json({
+            success: true,
+            data: [],
+            total: 0,
+            hasMore: false,
+            cached: false,
+          });
+        }),
       ],
     },
     docs: {
@@ -140,6 +162,44 @@ export const FilteredByRedWines: Story = {
     msw: {
       handlers: [
         http.get('http://localhost:3001/api/wine-labels', () => {
+          const redWines = [
+            {
+              id: '550e8400-e29b-41d4-a716-446655440001',
+              name: 'Château Margaux 2015',
+              winery: 'Château Margaux',
+              vintage: 2015,
+              region: 'Bordeaux, France',
+              grape_variety: 'Cabernet Sauvignon, Merlot, Petit Verdot, Cabernet Franc',
+              alcohol_content: 13.5,
+              tasting_notes: 'Elegant and refined with notes of blackcurrant, cedar, and subtle spices.',
+              style: 'red',
+              created_at: '2023-01-15T10:30:00Z',
+              updated_at: '2023-01-15T10:30:00Z',
+            },
+            {
+              id: '550e8400-e29b-41d4-a716-446655440003',
+              name: 'Opus One 2018',
+              winery: 'Opus One Winery',
+              vintage: 2018,
+              region: 'Napa Valley, California',
+              grape_variety: 'Cabernet Sauvignon, Merlot, Petit Verdot, Cabernet Franc, Malbec',
+              alcohol_content: 14.5,
+              tasting_notes: 'Bold and structured with dark fruit flavors, vanilla, and oak.',
+              style: 'red',
+              created_at: '2023-03-10T09:45:00Z',
+              updated_at: '2023-03-10T09:45:00Z',
+            },
+          ];
+
+          return HttpResponse.json({
+            success: true,
+            data: redWines,
+            total: redWines.length,
+            hasMore: false,
+            cached: false,
+          });
+        }),
+        http.get('https://winette.vercel.app/api/wine-labels', () => {
           const redWines = [
             {
               id: '550e8400-e29b-41d4-a716-446655440001',
