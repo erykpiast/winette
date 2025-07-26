@@ -4,11 +4,6 @@
   "devCommand": "pnpm run dev:frontend",
   "installCommand": "pnpm install --frozen-lockfile",
   "framework": "vite",
-  "functions": {
-    "src/backend/index.ts": {
-      "runtime": "nodejs22.x"
-    }
-  },
   "rewrites": [
     {
       "source": "/api/(.*)",

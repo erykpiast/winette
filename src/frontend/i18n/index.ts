@@ -17,8 +17,14 @@ i18n
 
     // HTTP backend configuration
     backend: {
-      loadPath: '/locales/{{lng}}/{{ns}}.json',
-      addPath: '/locales/{{lng}}/{{ns}}.json',
+      loadPath:
+        import.meta.env.PROD && window.location.pathname.includes('/winette/')
+          ? '/winette/locales/{{lng}}/{{ns}}.json'
+          : '/locales/{{lng}}/{{ns}}.json',
+      addPath:
+        import.meta.env.PROD && window.location.pathname.includes('/winette/')
+          ? '/winette/locales/{{lng}}/{{ns}}.json'
+          : '/locales/{{lng}}/{{ns}}.json',
       allowMultiLoading: false,
       crossDomain: false,
       withCredentials: false,

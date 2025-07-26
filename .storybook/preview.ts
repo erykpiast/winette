@@ -8,7 +8,7 @@ try {
   initialize({
     onUnhandledRequest: 'warn',
     serviceWorker: {
-      url: './mockServiceWorker.js',
+      url: window.location.pathname.includes('/winette/') ? '/winette/mockServiceWorker.js' : './mockServiceWorker.js',
     },
   });
 } catch (error) {
