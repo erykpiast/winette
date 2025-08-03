@@ -9,7 +9,7 @@
       "#hooks/*": ["./src/frontend/hooks/*"],
       "#styles/*": ["./src/frontend/styles/*"],
       "#i18n/*": ["./src/frontend/i18n/*"],
-      "#i18n": ["./src/frontend/i18n/index.ts"],
+      "#i18n": ["./src/frontend/i18n"],
       "#lib/*": ["./src/frontend/lib/*"]
     }
   }

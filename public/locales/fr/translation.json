@@ -46,6 +46,54 @@
   "footer": {
     "copyright": "© 2024 Winette. Donner aux vignerons les moyens de concevoir avec l'IA."
   },
+  "wineForm": {
+    "title": "Créez votre étiquette de vin",
+    "description": "Entrez les détails de votre vin ci-dessous pour commencer la conception d'étiquette assistée par IA",
+    "fields": {
+      "region": {
+        "label": "Région/Appellation",
+        "placeholder": "ex. Bordeaux, Vallée de Napa",
+        "required": "La région est requise",
+        "minLength": "La région doit comporter au moins 2 caractères",
+        "maxLength": "La région ne peut pas dépasser 100 caractères",
+        "invalid": "Veuillez entrer un nom de région valide (lettres, espaces, traits d'union et apostrophes uniquement)"
+      },
+      "wineVariety": {
+        "label": "Cépage",
+        "placeholder": "ex. Cabernet Sauvignon, Chardonnay",
+        "optional": "(optionnel)",
+        "maxLength": "Le cépage ne peut pas dépasser 100 caractères",
+        "invalid": "Veuillez entrer un nom de cépage valide (lettres, espaces, traits d'union et apostrophes uniquement)"
+      },
+      "producerName": {
+        "label": "Nom du producteur",
+        "placeholder": "Votre domaine viticole ou nom de producteur",
+        "required": "Le nom du producteur est requis",
+        "minLength": "Le nom du producteur doit comporter au moins 2 caractères",
+        "maxLength": "Le nom du producteur ne peut pas dépasser 100 caractères",
+        "invalid": "Veuillez entrer un nom de producteur valide (lettres, chiffres, espaces et ponctuation courante uniquement)"
+      }
+    },
+    "actions": {
+      "clear": "Effacer",
+      "continue": "Continuer",
+      "processing": "Traitement...",
+      "clearConfirm": "Êtes-vous sûr de vouloir effacer le formulaire ?"
+    },
+    "status": {
+      "submitting": "Traitement de vos détails de vin...",
+      "success": "Formulaire soumis avec succès",
+      "error": "Échec du traitement du formulaire. Veuillez réessayer."
+    },
+    "autocomplete": {
+      "noResults": "Aucun {{type}} trouvé pour \"{{query}}\"",
+      "loading": "Recherche...",
+      "suggestions": "Suggestions de {{type}}"
+    },
+    "validation": {
+      "invalidInput": "Saisie invalide"
+    }
+  },
   "api": {
     "fetchError": "Échec de la récupération des données du serveur",
     "createError": "Échec de la création de l'étiquette de vin",

@@ -1,6 +1,6 @@
 import type { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
-import { supportedLanguages } from '#i18n/index';
+import { supportedLanguages } from '#i18n';
 import type { SupportedLanguage } from '#types/i18n';
 
 const languageNames: Record<SupportedLanguage, string> = {

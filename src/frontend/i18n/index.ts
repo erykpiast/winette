@@ -15,16 +15,14 @@ i18n
     supportedLngs: supportedLanguages,
     debug: import.meta.env.DEV,
 
+    // Ensure we have fallback namespace
+    ns: ['translation'],
+    defaultNS: 'translation',
+
     // HTTP backend configuration
     backend: {
-      loadPath:
-        import.meta.env.PROD && window.location.pathname.includes('/winette/')
-          ? '/winette/locales/{{lng}}/{{ns}}.json'
-          : '/locales/{{lng}}/{{ns}}.json',
-      addPath:
-        import.meta.env.PROD && window.location.pathname.includes('/winette/')
-          ? '/winette/locales/{{lng}}/{{ns}}.json'
-          : '/locales/{{lng}}/{{ns}}.json',
+      loadPath: '/locales/{{lng}}/{{ns}}.json',
+      addPath: '/locales/{{lng}}/{{ns}}.json',
       allowMultiLoading: false,
       crossDomain: false,
       withCredentials: false,
@@ -56,6 +54,9 @@ i18n
     // Load translations on initialization
     initImmediate: false,
     load: 'languageOnly',
+  })
+  .catch((error) => {
+    console.error('Failed to initialize i18n:', error);
   });
 
 export default i18n;

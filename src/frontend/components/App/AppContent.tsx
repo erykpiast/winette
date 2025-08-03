@@ -1,16 +1,38 @@
 import type { JSX } from 'react';
+import { Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { BackendTestSection } from '#components/BackendTestSection/BackendTestSection';
 import { LanguageSwitcher } from '#components/LanguageSwitcher';
+import { WineInputForm } from '#components/WineInputForm';
+import type { WineInputFormData } from '#hooks/useWineFormValidation';
 import * as styles from './App.css';
-import { useRandomPost } from './useAppApi';
 
 export function AppContent(): JSX.Element {
   const { t } = useTranslation();
-  const { data: wineLabel, refetch } = useRandomPost();
+  const [formData, setFormData] = useState<WineInputFormData | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | undefined>();
 
-  if (!wineLabel) {
-    return <div>Loading...</div>;
-  }
+  // Handle form submission
+  const handleFormSubmit = async (data: WineInputFormData) => {
+    setIsSubmitting(true);
+    setSubmitError(undefined);
+
+    try {
+      // TODO: In Phase 1.3, this will navigate to style selection
+      // For now, just store the data and show it
+      console.log('Form submitted with data:', data);
+      setFormData(data);
+
+      // Simulate processing time
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    } catch (error) {
+      console.error('Form submission error:', error);
+      setSubmitError('Failed to process form. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className={styles.app}>
@@ -26,71 +48,60 @@ export function AppContent(): JSX.Element {
           <p className={styles.heroDescription}>{t('hero.description')}</p>
         </section>
 
-        {/* Backend Integration Test Section */}
-        <section className={styles.comingSoon}>
-          <div className={styles.placeholder}>
-            <h3 className={styles.placeholderTitle}>{t('test.title')}</h3>
-            <p>{t('test.description')}</p>
+        {/* Wine Input Form - Phase 1.2 */}
+        <section>
+          <WineInputForm onSubmit={handleFormSubmit} isSubmitting={isSubmitting} submitError={submitError} />
+        </section>
 
-            <button type="button" onClick={() => refetch()}>
-              {t('test.fetchButton')}
-            </button>
+        {/* Display submitted form data (temporary for Phase 1.2) */}
+        {formData && (
+          <section className={styles.comingSoon}>
+            <div className={styles.placeholder}>
+              <h3 className={styles.placeholderTitle}>Form Submitted Successfully!</h3>
+              <p>Your wine details have been captured. In Phase 1.3, you'll proceed to style selection.</p>
 
-            <div
-              style={{
-                marginTop: '1rem',
-                padding: '1rem',
-                border: '1px solid #ccc',
-                borderRadius: '4px',
-                textAlign: 'left',
-              }}
-            >
-              <h4>{t('test.wineLabelTitle', { name: wineLabel.name })}</h4>
-              <div style={{ display: 'grid', gap: '0.5rem', fontSize: '0.9rem' }}>
-                <p>
-                  <strong>{t('test.winery')}:</strong> {wineLabel.winery}
-                </p>
-                <p>
-                  <strong>{t('test.vintage')}:</strong> {wineLabel.vintage}
-                </p>
-                <p>
-                  <strong>{t('test.region')}:</strong> {wineLabel.region}
-                </p>
-                <p>
-                  <strong>{t('test.grapeVariety')}:</strong> {wineLabel.grape_variety}
-                </p>
-                <p>
-                  <strong>{t('test.alcoholContent')}:</strong> {wineLabel.alcohol_content}%
-                </p>
-                <p>
-                  <strong>{t('test.style')}:</strong> {wineLabel.style}
-                </p>
-                <p>
-                  <strong>{t('test.tastingNotes')}:</strong> {wineLabel.tasting_notes}
-                </p>
+              <div
+                style={{
+                  marginTop: '1rem',
+                  padding: '1rem',
+                  border: '1px solid #10b981',
+                  borderRadius: '8px',
+                  backgroundColor: '#f0fdf4',
+                  textAlign: 'left',
+                }}
+              >
+                <h4>Your Wine Details:</h4>
+                <div style={{ display: 'grid', gap: '0.5rem', fontSize: '0.9rem' }}>
+                  <p>
+                    <strong>Region:</strong> {formData.region}
+                  </p>
+                  {formData.wineVariety && (
+                    <p>
+                      <strong>Wine Variety:</strong> {formData.wineVariety}
+                    </p>
+                  )}
+                  <p>
+                    <strong>Producer Name:</strong> {formData.producerName}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
-        <section className={styles.comingSoon}>
-          <div className={styles.placeholder}>
-            <h3 className={styles.placeholderTitle}>{t('phase1.title')}</h3>
-            <p>{t('phase1.subtitle')}</p>
-            <div className="features">
-              <ul className={styles.featuresList}>
-                <li className={styles.featuresListItem}>{t('phase1.features.projectSetup')}</li>
-                <li className={styles.featuresListItem}>{t('phase1.features.reactQuery')}</li>
-                <li className={styles.featuresListItem}>{t('phase1.features.errorBoundaries')}</li>
-                <li className={styles.featuresListItem}>{t('phase1.features.backendApi')}</li>
-                <li className={styles.featuresListItem}>{t('phase1.features.inputForm')}</li>
-                <li className={styles.featuresListItem}>{t('phase1.features.styleSelection')}</li>
-                <li className={styles.featuresListItem}>{t('phase1.features.labelPreview')}</li>
-                <li className={styles.featuresListItem}>{t('phase1.features.exportFunctionality')}</li>
-              </ul>
-            </div>
-          </div>
-        </section>
+        {/* Backend Integration Test Section - Wrapped in Suspense */}
+        <Suspense
+          fallback={
+            <section className={styles.comingSoon}>
+              <div className={styles.placeholder}>
+                <h3 className={styles.placeholderTitle}>{t('test.title')}</h3>
+                <p>Loading backend test data...</p>
+              </div>
+            </section>
+          }
+        >
+          <BackendTestSection />
+        </Suspense>
       </main>
 
       <footer className={styles.appFooter}>

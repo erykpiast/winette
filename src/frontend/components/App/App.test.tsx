@@ -63,8 +63,10 @@ describe('App', () => {
       expect(screen.queryByText('Loading translations...')).not.toBeInTheDocument();
     });
 
-    // Check for language switcher dropdown
-    const languageSelect = screen.getByRole('combobox');
+    // Check for language switcher dropdown - find it by looking for English option and getting the parent select
+    const englishOption = screen.getByText('English');
+    expect(englishOption).toBeInTheDocument();
+    const languageSelect = englishOption.closest('select');
     expect(languageSelect).toBeInTheDocument();
 
     // Check for language options
@@ -85,7 +87,12 @@ describe('App', () => {
     expect(screen.getByRole('main')).toBeInTheDocument(); // main content
     expect(screen.getByRole('contentinfo')).toBeInTheDocument(); // footer
 
-    // Check for button (from the test section)
-    expect(screen.getByRole('button')).toBeInTheDocument();
+    // Check that multiple buttons are present (form buttons, toggle buttons, test button)
+    const buttons = screen.getAllByRole('button');
+    expect(buttons.length).toBeGreaterThan(0);
+
+    // Verify that the form element exists by looking for the form tag directly
+    const formElement = document.querySelector('form');
+    expect(formElement).toBeInTheDocument();
   });
 });
