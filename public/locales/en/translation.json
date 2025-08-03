@@ -46,6 +46,54 @@
   "footer": {
     "copyright": "© 2024 Winette. Empowering winemakers with AI-assisted design."
   },
+  "wineForm": {
+    "title": "Create Your Wine Label",
+    "description": "Enter your wine details below to get started with AI-powered label design",
+    "fields": {
+      "region": {
+        "label": "Region/Appellation",
+        "placeholder": "e.g., Bordeaux, Napa Valley",
+        "required": "Region is required",
+        "minLength": "Region must be at least 2 characters",
+        "maxLength": "Region cannot exceed 100 characters",
+        "invalid": "Please enter a valid region name (letters, spaces, hyphens, and apostrophes only)"
+      },
+      "wineVariety": {
+        "label": "Wine Variety",
+        "placeholder": "e.g., Cabernet Sauvignon, Chardonnay",
+        "optional": "(optional)",
+        "maxLength": "Wine variety cannot exceed 100 characters",
+        "invalid": "Please enter a valid variety name (letters, spaces, hyphens, and apostrophes only)"
+      },
+      "producerName": {
+        "label": "Producer Name",
+        "placeholder": "Your winery or producer name",
+        "required": "Producer name is required",
+        "minLength": "Producer name must be at least 2 characters",
+        "maxLength": "Producer name cannot exceed 100 characters",
+        "invalid": "Please enter a valid producer name (letters, numbers, spaces, and common punctuation only)"
+      }
+    },
+    "actions": {
+      "clear": "Clear",
+      "continue": "Continue",
+      "processing": "Processing...",
+      "clearConfirm": "Are you sure you want to clear the form?"
+    },
+    "status": {
+      "submitting": "Processing your wine details...",
+      "success": "Form submitted successfully",
+      "error": "Failed to process form. Please try again."
+    },
+    "autocomplete": {
+      "noResults": "No {{type}} found for \"{{query}}\"",
+      "loading": "Searching...",
+      "suggestions": "{{type}} suggestions"
+    },
+    "validation": {
+      "invalidInput": "Invalid input"
+    }
+  },
   "api": {
     "fetchError": "Failed to fetch data from server",
     "createError": "Failed to create wine label",
