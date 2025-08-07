@@ -2,8 +2,12 @@ import type { JSX } from 'react';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { AppellationField } from '#components/AppellationField';
 import { ProducerNameField } from '#components/ProducerNameField';
 import { RegionField } from '#components/RegionField';
+import { StyleSelector } from '#components/StyleSelector';
+import { VintageField } from '#components/VintageField';
+import { WineNameField } from '#components/WineNameField';
 import { WineVarietyField } from '#components/WineVarietyField';
 import { useWineFormValidation, type WineInputFormData } from '#hooks/useWineFormValidation';
 import * as styles from './WineInputForm.css';
@@ -64,6 +68,10 @@ export function WineInputForm({
       region: initialData?.region || '',
       wineVariety: initialData?.wineVariety || '',
       producerName: initialData?.producerName || '',
+      wineName: initialData?.wineName || '',
+      vintage: initialData?.vintage || '',
+      appellation: initialData?.appellation || '',
+      style: initialData?.style || 'classic',
     },
   });
 
@@ -99,6 +107,10 @@ export function WineInputForm({
       region: data.region.trim(),
       wineVariety: data.wineVariety?.trim() || undefined,
       producerName: data.producerName.trim(),
+      wineName: data.wineName.trim(),
+      vintage: data.vintage.trim(),
+      appellation: data.appellation?.trim() || undefined,
+      style: data.style,
     };
 
     onSubmit(cleanedData);
@@ -110,6 +122,10 @@ export function WineInputForm({
       region: '',
       wineVariety: '',
       producerName: '',
+      wineName: '',
+      vintage: '',
+      appellation: '',
+      style: 'classic',
     });
   };
 
@@ -126,6 +142,22 @@ export function WineInputForm({
     setValue('producerName', value, { shouldValidate: true, shouldDirty: true });
   };
 
+  const handleWineNameChange = (value: string) => {
+    setValue('wineName', value, { shouldValidate: true, shouldDirty: true });
+  };
+
+  const handleVintageChange = (value: string) => {
+    setValue('vintage', value, { shouldValidate: true, shouldDirty: true });
+  };
+
+  const handleAppellationChange = (value: string) => {
+    setValue('appellation', value, { shouldValidate: true, shouldDirty: true });
+  };
+
+  const handleStyleChange = (value: WineInputFormData['style']) => {
+    setValue('style', value, { shouldValidate: true, shouldDirty: true });
+  };
+
   // Handle field blur for validation
   const handleFieldBlur = (fieldName: keyof WineInputFormData) => {
     trigger(fieldName);
@@ -137,6 +169,29 @@ export function WineInputForm({
       <p className={styles.formDescription}>{t('wineForm.description')}</p>
 
       <form onSubmit={handleFormSubmit} className={styles.form} noValidate>
+        {/* Required fields first */}
+        <div className={styles.fieldGroup}>
+          <ProducerNameField
+            {...register('producerName', validationRules.producerName)}
+            value={watchedValues.producerName}
+            onChange={handleProducerNameChange}
+            onBlur={() => handleFieldBlur('producerName')}
+            error={getErrorMessage(errors.producerName)}
+            disabled={isSubmitting}
+          />
+        </div>
+
+        <div className={styles.fieldGroup}>
+          <WineNameField
+            {...register('wineName', validationRules.wineName)}
+            value={watchedValues.wineName}
+            onChange={handleWineNameChange}
+            onBlur={() => handleFieldBlur('wineName')}
+            error={getErrorMessage(errors.wineName)}
+            disabled={isSubmitting}
+          />
+        </div>
+
         <div className={styles.fieldGroup}>
           <RegionField
             {...register('region', validationRules.region)}
@@ -149,6 +204,18 @@ export function WineInputForm({
         </div>
 
         <div className={styles.fieldGroup}>
+          <VintageField
+            {...register('vintage', validationRules.vintage)}
+            value={watchedValues.vintage}
+            onChange={handleVintageChange}
+            onBlur={() => handleFieldBlur('vintage')}
+            error={getErrorMessage(errors.vintage)}
+            disabled={isSubmitting}
+          />
+        </div>
+
+        {/* Optional fields at the end */}
+        <div className={styles.fieldGroup}>
           <WineVarietyField
             {...register('wineVariety', validationRules.wineVariety)}
             value={watchedValues.wineVariety}
@@ -160,12 +227,23 @@ export function WineInputForm({
         </div>
 
         <div className={styles.fieldGroup}>
-          <ProducerNameField
-            {...register('producerName', validationRules.producerName)}
-            value={watchedValues.producerName}
-            onChange={handleProducerNameChange}
-            onBlur={() => handleFieldBlur('producerName')}
-            error={getErrorMessage(errors.producerName)}
+          <AppellationField
+            {...register('appellation', validationRules.appellation)}
+            value={watchedValues.appellation || ''}
+            onChange={handleAppellationChange}
+            onBlur={() => handleFieldBlur('appellation')}
+            error={getErrorMessage(errors.appellation)}
+            disabled={isSubmitting}
+          />
+        </div>
+
+        {/* Style selection at the very end */}
+        <div className={styles.fieldGroup}>
+          <StyleSelector
+            {...register('style', validationRules.style)}
+            selectedStyle={watchedValues.style}
+            onStyleChange={handleStyleChange}
+            error={getErrorMessage(errors.style)}
             disabled={isSubmitting}
           />
         </div>

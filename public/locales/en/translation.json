@@ -51,8 +51,8 @@
     "description": "Enter your wine details below to get started with AI-powered label design",
     "fields": {
       "region": {
-        "label": "Region/Appellation",
-        "placeholder": "e.g., Bordeaux, Napa Valley",
+        "label": "Wine Region",
+        "placeholder": "e.g., Bordeaux, Napa Valley, Tuscany",
         "required": "Region is required",
         "minLength": "Region must be at least 2 characters",
         "maxLength": "Region cannot exceed 100 characters",
@@ -72,6 +72,50 @@
         "minLength": "Producer name must be at least 2 characters",
         "maxLength": "Producer name cannot exceed 100 characters",
         "invalid": "Please enter a valid producer name (letters, numbers, spaces, and common punctuation only)"
+      },
+      "wineName": {
+        "label": "Wine Name",
+        "placeholder": "e.g., Grand Vin, Reserve, Estate",
+        "required": "Wine name is required",
+        "minLength": "Wine name must be at least 2 characters",
+        "maxLength": "Wine name cannot exceed 100 characters",
+        "invalid": "Please enter a valid wine name (letters, numbers, spaces, and common punctuation only)"
+      },
+      "vintage": {
+        "label": "Vintage",
+        "placeholder": "e.g., 2021",
+        "required": "Vintage is required",
+        "invalid": "Please enter a valid vintage (4-digit year or NV/N.V.)",
+        "range": "Vintage must be between 1900 and next year"
+      },
+      "appellation": {
+        "label": "Appellation",
+        "placeholder": "e.g., AOC Bordeaux, AVA Napa Valley",
+        "optional": "(optional)",
+        "maxLength": "Appellation cannot exceed 100 characters",
+        "invalid": "Please enter a valid appellation name (letters, spaces, hyphens, and apostrophes only)"
+      },
+      "style": {
+        "label": "Label Style",
+        "required": "Please select a label style",
+        "options": {
+          "classic": {
+            "name": "Classic",
+            "description": "Traditional serif fonts with formal layout"
+          },
+          "modern": {
+            "name": "Modern",
+            "description": "Clean sans-serif with minimal design"
+          },
+          "elegant": {
+            "name": "Elegant",
+            "description": "Sophisticated typography with refined details"
+          },
+          "funky": {
+            "name": "Funky",
+            "description": "Bold display fonts with dynamic layouts"
+          }
+        }
       }
     },
     "actions": {
@@ -86,7 +130,7 @@
       "error": "Failed to process form. Please try again."
     },
     "autocomplete": {
-      "noResults": "No {{type}} found for \"{{query}}\"",
+      "noResults": "Use \"{{query}}\"",
       "loading": "Searching...",
       "suggestions": "{{type}} suggestions"
     },

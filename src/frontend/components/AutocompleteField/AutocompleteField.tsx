@@ -1,6 +1,6 @@
 import { useCombobox } from 'downshift';
 import type { JSX } from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { InputField } from '#components/InputField';
 import * as styles from './AutocompleteField.css';
 
@@ -77,31 +77,43 @@ export function AutocompleteField({
   name,
   noResultsMessage = 'No results found',
 }: AutocompleteFieldProps): JSX.Element {
-  const [inputValue, setInputValue] = useState(value);
+  // Remove duplicate options to fix the repeated entries issue
+  const uniqueOptions = useMemo(() => {
+    return Array.from(new Set(options));
+  }, [options]);
 
-  // Sync inputValue with value prop changes
-  useEffect(() => {
-    setInputValue(value);
-  }, [value]);
-
-  // Filter options based on input
+  // Filter options based on current value
   const filteredOptions = useMemo(() => {
-    if (!inputValue) return options as string[];
-    return (options as string[]).filter((option) => option.toLowerCase().includes(inputValue.toLowerCase()));
-  }, [inputValue, options]);
+    if (!value || value.trim() === '') return uniqueOptions;
+    const filtered = uniqueOptions.filter((option) => option.toLowerCase().includes(value.toLowerCase()));
+
+    // If no matches and user has entered text, add the user's input as an option
+    if (filtered.length === 0 && value.trim() !== '') {
+      return [value.trim()];
+    }
+
+    return filtered;
+  }, [value, uniqueOptions]);
 
   const { isOpen, getToggleButtonProps, getMenuProps, getInputProps, highlightedIndex, getItemProps } = useCombobox({
     items: filteredOptions,
-    inputValue,
+    inputValue: value,
     selectedItem: value,
+    defaultHighlightedIndex: 0, // Auto-highlight first item (which will be the no results option when present)
     onInputValueChange: ({ inputValue: newInputValue }) => {
-      setInputValue(newInputValue || '');
       onChange(newInputValue || '');
     },
     onSelectedItemChange: ({ selectedItem }) => {
       if (selectedItem) {
-        onChange(selectedItem);
-        setInputValue(selectedItem);
+        // Check if this is a custom input (not in original options)
+        const isCustomInput = !uniqueOptions.includes(selectedItem) && selectedItem === value.trim();
+        if (isCustomInput) {
+          // For custom input, just keep the current value and close dropdown
+          onChange(selectedItem);
+        } else {
+          // For regular options, update the value
+          onChange(selectedItem);
+        }
       }
     },
     itemToString: (item) => item || '',
@@ -127,15 +139,25 @@ export function AutocompleteField({
   const dropdownMenu = isOpen && (
     <ul {...getMenuProps()} className={styles.menu}>
       {filteredOptions.length > 0 ? (
-        filteredOptions.map((option, index) => (
-          <li
-            {...getItemProps({ item: option, index })}
-            key={option}
-            className={`${styles.menuItem} ${highlightedIndex === index ? styles.menuItemHighlighted : ''}`}
-          >
-            {option}
-          </li>
-        ))
+        filteredOptions.map((option, index) => {
+          // Check if this option is the user's custom input (not in original options)
+          const isCustomInput = !uniqueOptions.includes(option) && option === value.trim();
+          const displayText = isCustomInput ? noResultsMessage : option;
+
+          return (
+            <li
+              {...getItemProps({ item: option, index })}
+              key={option}
+              className={
+                isCustomInput
+                  ? `${styles.noResults} ${highlightedIndex === index ? styles.menuItemHighlighted : ''}`
+                  : `${styles.menuItem} ${highlightedIndex === index ? styles.menuItemHighlighted : ''}`
+              }
+            >
+              {displayText}
+            </li>
+          );
+        })
       ) : (
         <li className={styles.noResults}>{noResultsMessage}</li>
       )}

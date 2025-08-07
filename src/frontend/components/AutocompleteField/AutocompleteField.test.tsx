@@ -86,9 +86,32 @@ describe('AutocompleteField', () => {
     const toggleButton = screen.getByRole('button', { name: 'toggle menu' });
     await user.click(toggleButton);
 
-    // Verify input value was updated and no options are shown
+    // Verify input value was updated and user's input is shown as selectable option
     expect(input).toHaveValue('xyz');
-    expect(screen.queryByRole('option')).not.toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'No results found' })).toBeInTheDocument();
+  });
+
+  it('allows selecting custom user input when no options match', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(<AutocompleteField {...defaultProps} onChange={onChange} />);
+
+    const input = screen.getByRole('combobox');
+    await user.type(input, 'CustomFruit');
+
+    const toggleButton = screen.getByRole('button', { name: 'toggle menu' });
+    await user.click(toggleButton);
+
+    // Should show the custom input as a selectable option with the no results message
+    const customOption = screen.getByRole('option', { name: 'No results found' });
+    expect(customOption).toBeInTheDocument();
+
+    // Click the custom option
+    await user.click(customOption);
+
+    // Should call onChange with the custom value and close dropdown
+    expect(onChange).toHaveBeenCalledWith('CustomFruit');
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
   });
 
   it('shows custom no results message', async () => {

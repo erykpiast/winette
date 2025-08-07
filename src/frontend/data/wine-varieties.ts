@@ -50,7 +50,6 @@ export const WINE_VARIETIES = [
   'Aglianico',
   "Nero d'Avola",
   'Negroamaro',
-  'Primitivo',
   'Montepulciano',
   'Brunello',
   'Chianti',
@@ -150,7 +149,6 @@ export const WINE_VARIETIES = [
   'Pinot Blanc',
   'Welschriesling',
   'Grüner Veltliner',
-  'Riesling',
   'Neuburger',
   'Zierfandler',
   'Rotgipfler',
@@ -169,12 +167,6 @@ export const WINE_VARIETIES = [
   'Zenit',
   'Rajnai Rizling',
   'Rizlingszilváni',
-  'Sauvignon Blanc',
-  'Pinot Grigio',
-  'Pinot Gris',
-  'Gewürztraminer',
-  'Albariño',
-  'Verdejo',
 
   // Sparkling Wine Base Varieties
   'Champagne Blend',

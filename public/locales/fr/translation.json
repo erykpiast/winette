@@ -51,8 +51,8 @@
     "description": "Entrez les détails de votre vin ci-dessous pour commencer la conception d'étiquette assistée par IA",
     "fields": {
       "region": {
-        "label": "Région/Appellation",
-        "placeholder": "ex. Bordeaux, Vallée de Napa",
+        "label": "Région vinicole",
+        "placeholder": "ex. Bordeaux, Vallée de Napa, Toscane",
         "required": "La région est requise",
         "minLength": "La région doit comporter au moins 2 caractères",
         "maxLength": "La région ne peut pas dépasser 100 caractères",
@@ -72,6 +72,50 @@
         "minLength": "Le nom du producteur doit comporter au moins 2 caractères",
         "maxLength": "Le nom du producteur ne peut pas dépasser 100 caractères",
         "invalid": "Veuillez entrer un nom de producteur valide (lettres, chiffres, espaces et ponctuation courante uniquement)"
+      },
+      "wineName": {
+        "label": "Nom du vin",
+        "placeholder": "ex. Grand Vin, Réserve, Domaine",
+        "required": "Le nom du vin est requis",
+        "minLength": "Le nom du vin doit comporter au moins 2 caractères",
+        "maxLength": "Le nom du vin ne peut pas dépasser 100 caractères",
+        "invalid": "Veuillez entrer un nom de vin valide (lettres, chiffres, espaces et ponctuation courante uniquement)"
+      },
+      "vintage": {
+        "label": "Millésime",
+        "placeholder": "ex. 2021",
+        "required": "Le millésime est requis",
+        "invalid": "Veuillez entrer un millésime valide (année à 4 chiffres ou NV/N.V.)",
+        "range": "Le millésime doit être entre 1900 et l'année prochaine"
+      },
+      "appellation": {
+        "label": "Appellation",
+        "placeholder": "ex. AOC Bordeaux, AVA Napa Valley",
+        "optional": "(optionnel)",
+        "maxLength": "L'appellation ne peut pas dépasser 100 caractères",
+        "invalid": "Veuillez entrer un nom d'appellation valide (lettres, espaces, traits d'union et apostrophes uniquement)"
+      },
+      "style": {
+        "label": "Style d'étiquette",
+        "required": "Veuillez sélectionner un style d'étiquette",
+        "options": {
+          "classic": {
+            "name": "Classique",
+            "description": "Polices serif traditionnelles avec mise en page formelle"
+          },
+          "modern": {
+            "name": "Moderne",
+            "description": "Sans-serif épuré avec design minimaliste"
+          },
+          "elegant": {
+            "name": "Élégant",
+            "description": "Typographie sophistiquée avec détails raffinés"
+          },
+          "funky": {
+            "name": "Fantaisie",
+            "description": "Polices audacieuses avec mises en page dynamiques"
+          }
+        }
       }
     },
     "actions": {
@@ -86,7 +130,7 @@
       "error": "Échec du traitement du formulaire. Veuillez réessayer."
     },
     "autocomplete": {
-      "noResults": "Aucun {{type}} trouvé pour \"{{query}}\"",
+      "noResults": "Utiliser \"{{query}}\"",
       "loading": "Recherche...",
       "suggestions": "Suggestions de {{type}}"
     },

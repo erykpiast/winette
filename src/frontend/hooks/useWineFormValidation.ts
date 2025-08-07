@@ -2,16 +2,26 @@ import { useMemo } from 'react';
 import type { FieldError, RegisterOptions } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
+export type LabelStyleId = 'classic' | 'modern' | 'elegant' | 'funky';
+
 export interface WineInputFormData {
   region: string;
   wineVariety?: string | undefined;
   producerName: string;
+  wineName: string;
+  vintage: string;
+  appellation?: string | undefined;
+  style: LabelStyleId;
 }
 
 export interface ValidationRules {
   region: RegisterOptions<WineInputFormData, 'region'>;
   wineVariety: RegisterOptions<WineInputFormData, 'wineVariety'>;
   producerName: RegisterOptions<WineInputFormData, 'producerName'>;
+  wineName: RegisterOptions<WineInputFormData, 'wineName'>;
+  vintage: RegisterOptions<WineInputFormData, 'vintage'>;
+  appellation: RegisterOptions<WineInputFormData, 'appellation'>;
+  style: RegisterOptions<WineInputFormData, 'style'>;
 }
 
 /**
@@ -24,6 +34,12 @@ const VALIDATION_PATTERNS = {
   wineVariety: /^[a-zA-ZÀ-ÿ\u0100-\u017F\s\-'.]+$/,
   // Alphanumeric, spaces, common punctuation for winery names
   producerName: /^[a-zA-ZÀ-ÿ\u0100-\u017F0-9\s\-'.&,]+$/,
+  // Wine names - letters, numbers, spaces, common punctuation
+  wineName: /^[a-zA-ZÀ-ÿ\u0100-\u017F0-9\s\-'.&,]+$/,
+  // Vintage - 4 digits or NV/N.V.
+  vintage: /^(\d{4}|NV|N\.V\.)$/i,
+  // Appellation - similar to region
+  appellation: /^[a-zA-ZÀ-ÿ\u0100-\u017F\s\-'.]+$/,
 } as const;
 
 /**
@@ -118,6 +134,94 @@ export function useWineFormValidation() {
           },
         },
       },
+      wineName: {
+        required: {
+          value: true,
+          message: t('wineForm.fields.wineName.required'),
+        },
+        minLength: {
+          value: 2,
+          message: t('wineForm.fields.wineName.minLength'),
+        },
+        maxLength: {
+          value: 100,
+          message: t('wineForm.fields.wineName.maxLength'),
+        },
+        pattern: {
+          value: VALIDATION_PATTERNS.wineName,
+          message: t('wineForm.fields.wineName.invalid'),
+        },
+        validate: {
+          notEmpty: (value: string) => {
+            const trimmed = value?.trim();
+            if (!trimmed) {
+              return t('wineForm.fields.wineName.required');
+            }
+            return true;
+          },
+          noOnlySpaces: (value: string) => {
+            if (value && value.trim().length === 0) {
+              return t('wineForm.fields.wineName.required');
+            }
+            return true;
+          },
+        },
+      },
+      vintage: {
+        required: {
+          value: true,
+          message: t('wineForm.fields.vintage.required'),
+        },
+        pattern: {
+          value: VALIDATION_PATTERNS.vintage,
+          message: t('wineForm.fields.vintage.invalid'),
+        },
+        validate: {
+          notEmpty: (value: string) => {
+            const trimmed = value?.trim();
+            if (!trimmed) {
+              return t('wineForm.fields.vintage.required');
+            }
+            return true;
+          },
+          validYear: (value: string) => {
+            const trimmed = value?.trim().toUpperCase();
+            if (trimmed === 'NV' || trimmed === 'N.V.') {
+              return true;
+            }
+            const year = parseInt(trimmed, 10);
+            const currentYear = new Date().getFullYear();
+            if (year < 1900 || year > currentYear + 1) {
+              return t('wineForm.fields.vintage.range');
+            }
+            return true;
+          },
+        },
+      },
+      appellation: {
+        maxLength: {
+          value: 100,
+          message: t('wineForm.fields.appellation.maxLength'),
+        },
+        pattern: {
+          value: VALIDATION_PATTERNS.appellation,
+          message: t('wineForm.fields.appellation.invalid'),
+        },
+        validate: {
+          noOnlySpaces: (value?: string) => {
+            if (value && value.trim().length === 0) {
+              return t('wineForm.fields.appellation.invalid');
+            }
+            return true;
+          },
+        },
+      },
+      style: {
+        required: {
+          value: true,
+          message: t('wineForm.fields.style.required'),
+        },
+      },
     }),
     [t],
   );
@@ -197,7 +301,16 @@ export function useWineFormValidation() {
         if ('validate' in rules && rules.validate && typeof rules.validate === 'object') {
           for (const [, validator] of Object.entries(rules.validate)) {
             if (typeof validator === 'function') {
-              const result = validator(fieldValue, {} as WineInputFormData);
+              // Create a minimal form data object for validation context
+              const formData: Partial<WineInputFormData> = {};
+              if (fieldName === 'style') {
+                formData[fieldName] = fieldValue as LabelStyleId;
+              } else {
+                // biome-ignore lint/suspicious/noExplicitAny: Type assertion needed for dynamic field assignment
+                (formData as any)[fieldName] = fieldValue;
+              }
+              // biome-ignore lint/suspicious/noExplicitAny: React Hook Form validator accepts any
+              const result = validator(fieldValue as any, formData as WineInputFormData);
               if (typeof result === 'string') {
                 return result;
               }
