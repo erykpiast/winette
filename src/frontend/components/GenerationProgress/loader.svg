@@ -1,0 +1,50 @@
+<svg width="160" height="160"
+    xmlns="http://www.w3.org/2000/svg">
+    <!-- source: https://codepen.io/erykpiast/pen/WbQEyyR?editors=0010 -->
+    <style>
+    svg {
+      overflow: visible;
+      animation-name: spin;
+      animation-duration: 3s;
+      animation-timing-function: ease-in-out;
+      animation-iteration-count: infinite;
+      transform-origin: 50% 50%;
+    }
+
+    circle {
+      animation-name: spread;
+      animation-duration: 3s;
+      animation-timing-function: ease-in-out;
+      animation-iteration-count: infinite;
+    }
+
+    @keyframes spread {
+      0%, 90%, 100% {
+        transform: translate(0, 0);
+      }
+      50% {
+        transform: translate(var(--outer-dx), var(--outer-dy));
+      }
+    }
+
+    @keyframes spin {
+      0, 90% {
+        transform: rotate(0deg);
+      }
+      90%, 100% {
+        transform: rotate(360deg);
+      }
+    }
+    </style>
+    <circle cx="74.5" cy="35" r="10" fill="currentColor" style="--outer-dx:75.50px; --outer-dy:45.00px;"></circle>
+    <circle cx="96.5" cy="35" r="10" fill="currentColor" style="--outer-dx:42.39px; --outer-dy:82.84px;"></circle>
+    <circle cx="63.5" cy="57" r="10" fill="currentColor" style="--outer-dx:45.58px; --outer-dy:86.67px;"></circle>
+    <circle cx="85.5" cy="57" r="10" fill="currentColor" style="--outer-dx:-15.46px; --outer-dy:92.29px;"></circle>
+    <circle cx="107.5" cy="57" r="10" fill="currentColor" style="--outer-dx:-73.34px; --outer-dy:75.90px;"></circle>
+    <circle cx="52.5" cy="79" r="10" fill="currentColor" style="--outer-dx:-39.66px; --outer-dy:20.72px;"></circle>
+    <circle cx="74.5" cy="79" r="10" fill="currentColor" style="--outer-dx:-61.66px; --outer-dy:-18.72px;"></circle>
+    <circle cx="96.5" cy="79" r="10" fill="currentColor" style="--outer-dx:-62.34px; --outer-dy:-51.90px;"></circle>
+    <circle cx="63.5" cy="101" r="10" fill="currentColor" style="--outer-dx:6.54px; --outer-dy:-90.29px;"></circle>
+    <circle cx="85.5" cy="101" r="10" fill="currentColor" style="--outer-dx:23.58px; --outer-dy:-84.67px;"></circle>
+    <circle cx="74.5" cy="123" r="10" fill="currentColor" style="--outer-dx:64.39px; --outer-dy:-80.84px;"></circle>
+</svg>

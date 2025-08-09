@@ -138,13 +138,50 @@
       "invalidInput": "Saisie invalide"
     }
   },
+  "generation": {
+    "title": "Votre soumission",
+    "initializing": "Préparation de votre demande...",
+    "processing": "Génération de la description de votre étiquette...",
+    "loading": "Chargement...",
+    "longRunning": "Cela peut prendre quelques minutes.",
+    "keepTabOpen": "Vous pouvez garder cet onglet ouvert ; nous mettrons à jour cette page automatiquement.",
+    "status": "Statut",
+    "completedTitle": "La description de votre étiquette est prête !",
+    "failedTitle": "Nous n'avons pas pu compléter votre demande",
+    "actions": {
+      "cancel": "Annuler et modifier",
+      "restart": "Recommencer",
+      "retry": "Réessayer",
+      "edit": "Modifier la soumission",
+      "another": "Générer une autre étiquette"
+    },
+    "fields": {
+      "producer": "Producteur",
+      "wine": "Vin",
+      "vintage": "Millésime",
+      "variety": "Cépage",
+      "region": "Région",
+      "appellation": "Appellation",
+      "style": "Style"
+    }
+  },
+  "styles": {
+    "classic": "Classique",
+    "modern": "Moderne",
+    "elegant": "Élégant",
+    "funky": "Fantaisie"
+  },
   "api": {
     "fetchError": "Échec de la récupération des données du serveur",
     "createError": "Échec de la création de l'étiquette de vin",
     "updateError": "Échec de la mise à jour de l'étiquette de vin",
     "deleteError": "Échec de la suppression de l'étiquette de vin",
+    "submitError": "Échec de la soumission de la demande de génération d'étiquette",
     "wineLabel": {
       "notFound": "Étiquette de vin introuvable"
+    },
+    "generation": {
+      "notFound": "Génération introuvable"
     },
     "validation": {
       "failed": "Échec de la validation"

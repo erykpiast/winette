@@ -138,13 +138,50 @@
       "invalidInput": "Invalid input"
     }
   },
+  "generation": {
+    "title": "Your submission",
+    "initializing": "Preparing your request...",
+    "processing": "Generating your label description...",
+    "loading": "Loading...",
+    "longRunning": "This may take a few minutes.",
+    "keepTabOpen": "You can keep this tab open; we'll update this page automatically.",
+    "status": "Status",
+    "completedTitle": "Your label description is ready!",
+    "failedTitle": "We couldn't complete your request",
+    "actions": {
+      "cancel": "Cancel and edit",
+      "restart": "Start over",
+      "retry": "Try again",
+      "edit": "Edit submission",
+      "another": "Generate another label"
+    },
+    "fields": {
+      "producer": "Producer",
+      "wine": "Wine",
+      "vintage": "Vintage",
+      "variety": "Variety",
+      "region": "Region",
+      "appellation": "Appellation",
+      "style": "Style"
+    }
+  },
+  "styles": {
+    "classic": "Classic",
+    "modern": "Modern",
+    "elegant": "Elegant",
+    "funky": "Funky"
+  },
   "api": {
     "fetchError": "Failed to fetch data from server",
     "createError": "Failed to create wine label",
     "updateError": "Failed to update wine label",
     "deleteError": "Failed to delete wine label",
+    "submitError": "Failed to submit wine label generation request",
     "wineLabel": {
       "notFound": "Wine label not found"
+    },
+    "generation": {
+      "notFound": "Generation not found"
     },
     "validation": {
       "failed": "Validation failed"
