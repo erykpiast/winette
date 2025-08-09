@@ -1,1 +1,1 @@
-export { handleGetWineLabels as default } from '#backend/routes/wine-labels.js';
+export { handleWineLabels as default } from '#backend/routes/wine-labels.js';

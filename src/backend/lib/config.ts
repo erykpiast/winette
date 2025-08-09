@@ -17,6 +17,13 @@ const configSchema = z.object({
   UPSTASH_REDIS_REST_URL: z.string().url().optional(),
   UPSTASH_REDIS_REST_TOKEN: z.string().min(1).optional(),
 
+  // QStash Configuration (optional for development)
+  QSTASH_URL: z.string().url().default('https://qstash.upstash.io'),
+  QSTASH_TOKEN: z.string().min(1).optional(),
+  QSTASH_CURRENT_SIGNING_KEY: z.string().min(1).optional(),
+  QSTASH_NEXT_SIGNING_KEY: z.string().min(1).optional(),
+  API_BASE_URL: z.string().url().default('http://localhost:3001'),
+
   // Rate limiting configuration
   DISABLE_RATE_LIMITING: z
     .enum(['true', 'false'])
@@ -45,6 +52,7 @@ function validateConfig() {
     console.error('\n📋 Required environment variables:');
     console.error('  SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY');
     console.error('  UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN');
+    console.error('  QSTASH_TOKEN, QSTASH_CURRENT_SIGNING_KEY, QSTASH_NEXT_SIGNING_KEY');
     console.error('  NEW_RELIC_LICENSE_KEY (optional)\n');
 
     // In serverless environments, don't exit the process
