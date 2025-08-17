@@ -1,5 +1,6 @@
 import type { JSX } from 'react';
 import { Suspense, useEffect, useState } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import { useTranslation } from 'react-i18next';
 import { BackendTestSection } from '#components/BackendTestSection/BackendTestSection';
 import { GenerationProgress } from '#components/GenerationProgress';
@@ -86,19 +87,30 @@ export function AppContent(): JSX.Element {
           )}
         </section>
 
-        {/* Backend Integration Test Section - Wrapped in Suspense */}
-        <Suspense
-          fallback={
+        {/* Backend Integration Test Section - locally isolated with an error boundary */}
+        <ErrorBoundary
+          fallbackRender={({ error }) => (
             <section className={styles.comingSoon}>
               <div className={styles.placeholder}>
                 <h3 className={styles.placeholderTitle}>{t('test.title')}</h3>
-                <p>Loading backend test data...</p>
+                <p>{import.meta.env.DEV ? `Backend test unavailable: ${error.message}` : t('test.loading')}</p>
               </div>
             </section>
-          }
+          )}
         >
-          <BackendTestSection />
-        </Suspense>
+          <Suspense
+            fallback={
+              <section className={styles.comingSoon}>
+                <div className={styles.placeholder}>
+                  <h3 className={styles.placeholderTitle}>{t('test.title')}</h3>
+                  <p>{t('test.loading')}</p>
+                </div>
+              </section>
+            }
+          >
+            <BackendTestSection />
+          </Suspense>
+        </ErrorBoundary>
       </main>
 
       <footer className={styles.appFooter}>

@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
 import { cacheGet, cacheSet } from '../lib/cache.js';
+import { handleCorsPreflight } from '../lib/cors.js';
 import { supabase, type WineLabel } from '../lib/database.js';
 import { logger } from '../lib/logger.js';
 import { queueLabelGeneration } from '../lib/queue.js';
@@ -60,6 +61,7 @@ const SubmitWineLabelSchema = z.object({
  * @param res - Vercel response object
  */
 export async function handleWineLabels(req: VercelRequest, res: VercelResponse): Promise<void> {
+  if (handleCorsPreflight(req, res)) return;
   // Apply rate limiting
   const isAllowed = await applyRateLimit(req, res);
   if (!isAllowed) {
@@ -327,10 +329,12 @@ async function handleSubmitWineLabel(req: VercelRequest): Promise<SubmitWineLabe
       messageId,
     });
   } catch (queueError) {
+    const queueErrorMessage = queueError instanceof Error ? queueError.message : String(queueError);
     logger.error('Failed to queue generation job', queueError, {
       operation: 'handleSubmitWineLabel',
       submissionId: submission.id,
       generationId: generation.id,
+      queueError: queueErrorMessage,
     });
 
     // Update generation status to failed
@@ -338,7 +342,7 @@ async function handleSubmitWineLabel(req: VercelRequest): Promise<SubmitWineLabe
       .from('label_generations')
       .update({
         status: 'failed',
-        error: 'Failed to queue processing job',
+        error: `Failed to queue processing job: ${queueErrorMessage}`,
       })
       .eq('id', generation.id);
 

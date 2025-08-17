@@ -3,13 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { supportedLanguages } from '#i18n';
 import type { SupportedLanguage } from '#types/i18n';
 
-const languageNames: Record<SupportedLanguage, string> = {
-  en: 'English',
-  fr: 'Français',
-};
-
 export function LanguageSwitcher(): JSX.Element {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
 
   const handleLanguageChange = (language: SupportedLanguage): void => {
     i18n.changeLanguage(language);
@@ -46,7 +41,7 @@ export function LanguageSwitcher(): JSX.Element {
               color: 'white',
             }}
           >
-            {languageNames[lang]}
+            {t(`languages.${lang}`)}
           </option>
         ))}
       </select>

@@ -120,8 +120,15 @@ export function StyleSelector({
               value={option.id}
               checked={selectedStyle === option.id}
               onChange={() => handleStyleClick(option.id)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault();
+                  handleStyleClick(option.id);
+                }
+              }}
               className={styles.hiddenInput}
               disabled={disabled}
+              aria-checked={selectedStyle === option.id}
             />
           </label>
         ))}

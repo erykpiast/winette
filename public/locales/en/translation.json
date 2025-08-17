@@ -10,6 +10,7 @@
   "test": {
     "title": "Backend Integration Test",
     "description": "Testing full-stack communication with real database:",
+    "loading": "Loading backend test data...",
     "fetchButton": "Fetch New Random Wine",
     "wineLabelTitle": "{{name}}",
     "winery": "Winery",
@@ -41,10 +42,15 @@
   "error": {
     "title": "Something went wrong",
     "tryAgain": "Try Again",
-    "detailsTitle": "Error Details (Development)"
+    "detailsTitle": "Error Details (Development)",
+    "label": "Error"
   },
   "footer": {
     "copyright": "© 2024 Winette. Empowering winemakers with AI-assisted design."
+  },
+  "languages": {
+    "en": "English",
+    "fr": "French"
   },
   "wineForm": {
     "title": "Create Your Wine Label",
@@ -131,8 +137,11 @@
     },
     "autocomplete": {
       "noResults": "Use \"{{query}}\"",
+      "noResultsDefault": "No results found",
       "loading": "Searching...",
-      "suggestions": "{{type}} suggestions"
+      "suggestions": "{{type}} suggestions",
+      "toggleAria": "Toggle menu",
+      "toggleTitle": "Toggle dropdown"
     },
     "validation": {
       "invalidInput": "Invalid input"
@@ -146,6 +155,19 @@
     "longRunning": "This may take a few minutes.",
     "keepTabOpen": "You can keep this tab open; we'll update this page automatically.",
     "status": "Status",
+    "generationId": "Generation ID",
+    "result": {
+      "moodLabel": "Style mood",
+      "paletteLabel": "Palette",
+      "typographyLabel": "Typography"
+    },
+    "statuses": {
+      "initializing": "Initializing",
+      "pending": "Pending",
+      "processing": "Processing",
+      "completed": "Completed",
+      "failed": "Failed"
+    },
     "completedTitle": "Your label description is ready!",
     "failedTitle": "We couldn't complete your request",
     "actions": {

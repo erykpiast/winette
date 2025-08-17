@@ -49,20 +49,31 @@ export function VintageField({
 
   // Handle input change with validation for year format
   const handleChange = (newValue: string) => {
-    // Allow only digits, NV, N.V., or empty string while typing
-    const normalizedValue = newValue.toUpperCase();
+    const raw = newValue.replace(/\s+/g, '');
+    const normalizedValue = raw.toUpperCase();
 
-    // Allow empty string, partial typing of years (1-4 digits), NV, or N.V.
+    // Allow empty during typing
+    if (raw === '') {
+      onChange('');
+      return;
+    }
+
+    // Allow partial numeric year up to 4 digits
+    if (/^\d{1,4}$/.test(raw)) {
+      onChange(raw);
+      return;
+    }
+
+    // Allow incremental typing of NV or N.V.
     if (
-      newValue === '' ||
-      /^\d{1,4}$/.test(newValue) ||
       normalizedValue === 'N' ||
       normalizedValue === 'NV' ||
       normalizedValue === 'N.' ||
       normalizedValue === 'N.V' ||
       normalizedValue === 'N.V.'
     ) {
-      onChange(newValue);
+      onChange(normalizedValue);
+      return;
     }
   };
 

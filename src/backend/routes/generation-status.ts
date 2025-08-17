@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
+import { handleCorsPreflight } from '../lib/cors.js';
 import { supabase } from '../lib/database.js';
 import { logger } from '../lib/logger.js';
 import { applyRateLimit } from '../lib/rate-limiter.js';
@@ -17,6 +18,7 @@ const GenerationIdSchema = z.object({
  * @param res - Vercel response object
  */
 export async function handleGenerationStatus(req: VercelRequest, res: VercelResponse): Promise<void> {
+  if (handleCorsPreflight(req, res)) return;
   // Apply rate limiting
   const isAllowed = await applyRateLimit(req, res);
   if (!isAllowed) {

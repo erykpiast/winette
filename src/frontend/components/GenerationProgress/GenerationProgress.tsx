@@ -29,6 +29,8 @@ export function GenerationProgress({
 
   const isCompleted = status?.status === 'completed';
   const isFailed = status?.status === 'failed';
+  const statusKey = (status?.status as string | undefined) ?? 'initializing';
+  const friendlyStatus = t(`generation.statuses.${statusKey}`, { defaultValue: statusKey });
 
   // Show completed state
   if (isCompleted && 'description' in status && status.description) {
@@ -39,13 +41,14 @@ export function GenerationProgress({
         <h2 className={styles.successTitle}>✅ {t('generation.completedTitle')}</h2>
         <div className={styles.resultSummary}>
           <p>
-            <strong>{t('generation.fields.style')} mood:</strong> {mood.overall}
+            <strong>{t('generation.result.moodLabel')}:</strong> {mood.overall}
           </p>
           <p>
-            <strong>Palette:</strong> {colorPalette.primary.name} + {colorPalette.secondary.name}
+            <strong>{t('generation.result.paletteLabel')}:</strong> {colorPalette.primary.name} +{' '}
+            {colorPalette.secondary.name}
           </p>
           <p>
-            <strong>Typography:</strong> {typography.primary.family}
+            <strong>{t('generation.result.typographyLabel')}:</strong> {typography.primary.family}
           </p>
         </div>
         <div className={styles.actions}>
@@ -65,7 +68,11 @@ export function GenerationProgress({
     return (
       <div className={styles.failedContainer}>
         <h2 className={styles.errorTitle}>❌ {t('generation.failedTitle')}</h2>
-        {status && 'error' in status && status.error && <p className={styles.errorMessage}>Error: {status.error}</p>}
+        {status && 'error' in status && status.error && (
+          <p className={styles.errorMessage}>
+            {t('error.label')}: {status.error}
+          </p>
+        )}
         <div className={styles.actions}>
           <button type="button" className={styles.primaryButton} onClick={onCancel}>
             {t('generation.actions.retry')}
@@ -151,12 +158,14 @@ export function GenerationProgress({
       {/* Status line */}
       <div className={styles.statusLine}>
         <span>
-          {t('generation.status')}: {status?.status || 'initializing'}…
+          {t('generation.status')}: {friendlyStatus}…
         </span>
         {submission?.generationId && (
           <>
             <span className={styles.separator}>•</span>
-            <span>Generation ID: {submission.generationId.substring(0, 8)}</span>
+            <span>
+              {t('generation.generationId')}: {submission.generationId.substring(0, 8)}
+            </span>
           </>
         )}
       </div>

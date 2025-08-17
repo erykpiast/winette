@@ -10,6 +10,7 @@
   "test": {
     "title": "Test d'intégration backend",
     "description": "Test de communication full-stack avec vraie base de données :",
+    "loading": "Chargement des données de test backend...",
     "fetchButton": "Récupérer un nouveau vin aléatoire",
     "wineLabelTitle": "{{name}}",
     "winery": "Vignoble",
@@ -41,10 +42,15 @@
   "error": {
     "title": "Quelque chose s'est mal passé",
     "tryAgain": "Réessayer",
-    "detailsTitle": "Détails de l'erreur (Développement)"
+    "detailsTitle": "Détails de l'erreur (Développement)",
+    "label": "Erreur"
   },
   "footer": {
     "copyright": "© 2024 Winette. Donner aux vignerons les moyens de concevoir avec l'IA."
+  },
+  "languages": {
+    "en": "Anglais",
+    "fr": "Français"
   },
   "wineForm": {
     "title": "Créez votre étiquette de vin",
@@ -131,8 +137,11 @@
     },
     "autocomplete": {
       "noResults": "Utiliser \"{{query}}\"",
+      "noResultsDefault": "Aucun résultat trouvé",
       "loading": "Recherche...",
-      "suggestions": "Suggestions de {{type}}"
+      "suggestions": "Suggestions de {{type}}",
+      "toggleAria": "Basculer le menu",
+      "toggleTitle": "Basculer la liste"
     },
     "validation": {
       "invalidInput": "Saisie invalide"
@@ -146,6 +155,19 @@
     "longRunning": "Cela peut prendre quelques minutes.",
     "keepTabOpen": "Vous pouvez garder cet onglet ouvert ; nous mettrons à jour cette page automatiquement.",
     "status": "Statut",
+    "generationId": "ID de génération",
+    "result": {
+      "moodLabel": "Ambiance du style",
+      "paletteLabel": "Palette",
+      "typographyLabel": "Typographie"
+    },
+    "statuses": {
+      "initializing": "Initialisation",
+      "pending": "En attente",
+      "processing": "En cours",
+      "completed": "Terminé",
+      "failed": "Échec"
+    },
     "completedTitle": "La description de votre étiquette est prête !",
     "failedTitle": "Nous n'avons pas pu compléter votre demande",
     "actions": {

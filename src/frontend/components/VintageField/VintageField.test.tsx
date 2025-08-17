@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { I18nProvider } from '#components/I18nProvider';
 import { VintageField } from './VintageField';
@@ -18,36 +19,87 @@ describe('VintageField', () => {
     const user = userEvent.setup();
     const handleChange = vi.fn();
 
-    render(<VintageField value="" onChange={handleChange} onBlur={vi.fn()} />, { wrapper: TestWrapper });
+    // Controlled component wrapper to properly test onChange behavior
+    const ControlledVintageField = () => {
+      const [value, setValue] = React.useState('');
+      return (
+        <VintageField
+          value={value}
+          onChange={(val) => {
+            setValue(val);
+            handleChange(val);
+          }}
+          onBlur={vi.fn()}
+        />
+      );
+    };
+
+    render(<ControlledVintageField />, { wrapper: TestWrapper });
 
     const input = screen.getByRole('textbox');
     await user.type(input, '2021');
 
-    expect(handleChange).toHaveBeenCalledWith('2021');
+    // Verify the final value was set correctly
+    expect(input).toHaveValue('2021');
+    expect(handleChange).toHaveBeenLastCalledWith('2021');
   });
 
   it('accepts NV input', async () => {
     const user = userEvent.setup();
     const handleChange = vi.fn();
 
-    render(<VintageField value="" onChange={handleChange} onBlur={vi.fn()} />, { wrapper: TestWrapper });
+    // Controlled component wrapper
+    const ControlledVintageField = () => {
+      const [value, setValue] = React.useState('');
+      return (
+        <VintageField
+          value={value}
+          onChange={(val) => {
+            setValue(val);
+            handleChange(val);
+          }}
+          onBlur={vi.fn()}
+        />
+      );
+    };
+
+    render(<ControlledVintageField />, { wrapper: TestWrapper });
 
     const input = screen.getByRole('textbox');
     await user.type(input, 'NV');
 
-    expect(handleChange).toHaveBeenCalledWith('NV');
+    // Verify the final value was set correctly
+    expect(input).toHaveValue('NV');
+    expect(handleChange).toHaveBeenLastCalledWith('NV');
   });
 
   it('accepts N.V. input', async () => {
     const user = userEvent.setup();
     const handleChange = vi.fn();
 
-    render(<VintageField value="" onChange={handleChange} onBlur={vi.fn()} />, { wrapper: TestWrapper });
+    // Controlled component wrapper
+    const ControlledVintageField = () => {
+      const [value, setValue] = React.useState('');
+      return (
+        <VintageField
+          value={value}
+          onChange={(val) => {
+            setValue(val);
+            handleChange(val);
+          }}
+          onBlur={vi.fn()}
+        />
+      );
+    };
+
+    render(<ControlledVintageField />, { wrapper: TestWrapper });
 
     const input = screen.getByRole('textbox');
     await user.type(input, 'N.V.');
 
-    expect(handleChange).toHaveBeenCalledWith('N.V.');
+    // Verify the final value was set correctly
+    expect(input).toHaveValue('N.V.');
+    expect(handleChange).toHaveBeenLastCalledWith('N.V.');
   });
 
   it('displays error message when error is provided', () => {

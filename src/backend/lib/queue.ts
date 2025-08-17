@@ -1,5 +1,5 @@
 import { Client } from '@upstash/qstash';
-import { generateLabelDescription } from '../services/label-generator.js';
+import { runLabelOrchestrator } from '../services/label-generator.js';
 import type { LabelGenerationJob } from '../types/label-generation.js';
 import { config } from './config.js';
 import { supabase } from './database.js';
@@ -40,32 +40,16 @@ async function processJobDirectly(job: LabelGenerationJob): Promise<string> {
         throw new Error('Supabase client not available');
       }
 
-      // Update status to processing
-      await supabase
+      // Resolve generation id
+      const { data: gen } = await supabase
         .from('label_generations')
-        .update({
-          status: 'processing',
-          updated_at: new Date().toISOString(),
-        })
-        .eq('submission_id', job.submissionId);
+        .select('id')
+        .eq('submission_id', job.submissionId)
+        .single();
 
-      // Generate the label description
-      const labelDescription = await generateLabelDescription(job, 1);
+      if (!gen?.id) throw new Error('Generation not found for submission');
 
-      // Save results
-      const { error: updateError } = await supabase
-        .from('label_generations')
-        .update({
-          status: 'completed',
-          description: labelDescription,
-          completed_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
-        .eq('submission_id', job.submissionId);
-
-      if (updateError) {
-        throw new Error(`Failed to update generation: ${updateError.message}`);
-      }
+      await runLabelOrchestrator({ generationId: gen.id, job });
 
       logger.info('Development job completed successfully', {
         submissionId: job.submissionId,
@@ -108,17 +92,59 @@ export async function queueLabelGeneration(job: LabelGenerationJob): Promise<str
   }
 
   // Production mode: use QStash
-  const response = await qstash.publishJSON({
-    url: `${config.API_BASE_URL}/api/process-label`,
-    body: job,
-    retries: 3,
-    timeout: '30s',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+  // Validate configuration explicitly to surface clear error messages
+  if (!config.QSTASH_TOKEN) {
+    logger.error('QStash token is missing. Cannot publish job to QStash.', undefined, {
+      operation: 'queueLabelGeneration',
+    });
+    throw new Error('QStash token missing');
+  }
+  if (
+    !config.API_BASE_URL ||
+    config.API_BASE_URL.includes('localhost') ||
+    config.API_BASE_URL.includes('127.0.0.1') ||
+    config.API_BASE_URL.includes('::1')
+  ) {
+    logger.error('Invalid API_BASE_URL for QStash delivery', undefined, {
+      operation: 'queueLabelGeneration',
+      apiBaseUrl: config.API_BASE_URL,
+    });
+    throw new Error('Invalid API_BASE_URL for QStash');
+  }
 
-  return response.messageId;
+  // Resolve generation id for dedup header
+  if (!supabase) {
+    throw new Error('Supabase client not available');
+  }
+  const { data: gen } = await supabase
+    .from('label_generations')
+    .select('id')
+    .eq('submission_id', job.submissionId)
+    .single();
+
+  try {
+    const queue = qstash.queue({ queueName: 'label-generation' });
+    const response = await queue.enqueueJSON({
+      url: `${config.API_BASE_URL}/api/process-label`,
+      body: { ...job, generationId: gen?.id },
+      retries: 3,
+      timeout: '30s',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(gen?.id ? { 'Upstash-Deduplication-Id': gen.id } : {}),
+      },
+    });
+
+    return response.messageId;
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown QStash publish error';
+    logger.error('QStash publish failed', error, {
+      operation: 'queueLabelGeneration',
+      submissionId: job.submissionId,
+      apiBaseUrl: config.API_BASE_URL,
+    });
+    throw new Error(errorMessage);
+  }
 }
 
 export type { LabelGenerationJob };

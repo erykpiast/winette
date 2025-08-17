@@ -43,7 +43,7 @@ describe('WineInputForm', () => {
     expect(form).toBeInTheDocument();
 
     expect(screen.getAllByRole('combobox').length).toBe(2); // region and wine variety
-    expect(screen.getByRole('textbox')).toBeInTheDocument(); // producer name
+    expect(screen.getByLabelText(/wineForm\.fields\.producerName\.label/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /continue/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /clear/i })).toBeInTheDocument();
   });
@@ -103,22 +103,28 @@ describe('WineInputForm', () => {
     const inputs = screen.getAllByRole('combobox');
     const regionInput = findInputByName(inputs, 'region');
     const wineVarietyInput = findInputByName(inputs, 'wineVariety');
-    const producerInput = screen.getByRole('textbox');
+    const producerInput = screen.getByLabelText(/wineForm\.fields\.producerName\.label/);
+    const wineNameInput = screen.getByLabelText(/wineForm\.fields\.wineName\.label/);
+    const vintageInput = screen.getByLabelText(/wineForm\.fields\.vintage\.label/);
 
     await user.type(regionInput, 'Bordeaux');
     await user.type(wineVarietyInput, 'Cabernet Sauvignon');
     await user.type(producerInput, 'Château Margaux');
+    await user.type(wineNameInput, 'Grand Vin');
+    await user.type(vintageInput, '2021');
 
     // Submit the form
     const submitButton = screen.getByRole('button', { name: /continue/i });
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(onSubmit).toHaveBeenCalledWith({
-        region: 'Bordeaux',
-        wineVariety: 'Cabernet Sauvignon',
-        producerName: 'Château Margaux',
-      });
+      expect(onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          region: 'Bordeaux',
+          wineVariety: 'Cabernet Sauvignon',
+          producerName: 'Château Margaux',
+        }),
+      );
     });
   });
 
@@ -132,10 +138,14 @@ describe('WineInputForm', () => {
 
     const inputs = screen.getAllByRole('combobox');
     const regionInput = findInputByName(inputs, 'region');
-    const producerInput = screen.getByRole('textbox');
+    const producerInput = screen.getByLabelText(/wineForm\.fields\.producerName\.label/);
+    const wineNameInput = screen.getByLabelText(/wineForm\.fields\.wineName\.label/);
+    const vintageInput = screen.getByLabelText(/wineForm\.fields\.vintage\.label/);
 
     await user.type(regionInput, '  Bordeaux  ');
     await user.type(producerInput, '  Château Margaux  ');
+    await user.type(wineNameInput, '  Grand Vin  ');
+    await user.type(vintageInput, ' 2021 ');
 
     const submitButton = screen.getByRole('button', { name: /continue/i });
     await user.click(submitButton);
@@ -160,21 +170,27 @@ describe('WineInputForm', () => {
 
     const inputs = screen.getAllByRole('combobox');
     const regionInput = findInputByName(inputs, 'region');
-    const producerInput = screen.getByRole('textbox');
+    const producerInput = screen.getByLabelText(/wineForm\.fields\.producerName\.label/);
+    const wineNameInput = screen.getByLabelText(/wineForm\.fields\.wineName\.label/);
+    const vintageInput = screen.getByLabelText(/wineForm\.fields\.vintage\.label/);
 
     await user.type(regionInput, 'Bordeaux');
     await user.type(producerInput, 'Château Margaux');
+    await user.type(wineNameInput, 'Grand Vin');
+    await user.type(vintageInput, '2021');
     // Leave wine variety empty
 
     const submitButton = screen.getByRole('button', { name: /continue/i });
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(onSubmit).toHaveBeenCalledWith({
-        region: 'Bordeaux',
-        wineVariety: undefined,
-        producerName: 'Château Margaux',
-      });
+      expect(onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          region: 'Bordeaux',
+          wineVariety: undefined,
+          producerName: 'Château Margaux',
+        }),
+      );
     });
   });
 
@@ -206,7 +222,7 @@ describe('WineInputForm', () => {
     const inputs = screen.getAllByRole('combobox');
     const regionInput = findInputByName(inputs, 'region');
     const wineVarietyInput = findInputByName(inputs, 'wineVariety');
-    const producerInput = screen.getByRole('textbox');
+    const producerInput = screen.getByLabelText(/wineForm\.fields\.producerName\.label/);
     const submitButton = screen.getByRole('button', { name: /processing/i });
     const clearButton = screen.getByRole('button', { name: /clear/i });
 
@@ -240,7 +256,7 @@ describe('WineInputForm', () => {
     const inputs = screen.getAllByRole('combobox');
     const regionInput = findInputByName(inputs, 'region');
     const wineVarietyInput = findInputByName(inputs, 'wineVariety');
-    const producerInput = screen.getByRole('textbox');
+    const producerInput = screen.getByLabelText(/wineForm\.fields\.producerName\.label/);
 
     await user.type(regionInput, 'Bordeaux');
     await user.type(wineVarietyInput, 'Cabernet Sauvignon');
@@ -369,7 +385,7 @@ describe('WineInputForm', () => {
     const inputs = screen.getAllByRole('combobox');
     const regionInput = findInputByName(inputs, 'region');
     const wineVarietyInput = findInputByName(inputs, 'wineVariety');
-    const producerInput = screen.getByRole('textbox');
+    const producerInput = screen.getByLabelText(/wineForm\.fields\.producerName\.label/);
 
     // Test that typing updates the controlled components correctly
     await user.type(regionInput, 'Test Region');
@@ -411,11 +427,15 @@ describe('WineInputForm', () => {
     const inputs = screen.getAllByRole('combobox');
     const regionInput = findInputByName(inputs, 'region');
     const wineVarietyInput = findInputByName(inputs, 'wineVariety');
-    const producerInput = screen.getByRole('textbox');
+    const producerInput = screen.getByLabelText(/wineForm\.fields\.producerName\.label/);
+    const wineNameInput = screen.getByLabelText(/wineForm\.fields\.wineName\.label/);
+    const vintageInput = screen.getByLabelText(/wineForm\.fields\.vintage\.label/);
 
     await user.type(regionInput, 'Bordeaux');
     await user.type(wineVarietyInput, '   '); // Only whitespace
     await user.type(producerInput, 'Château Margaux');
+    await user.type(wineNameInput, 'Grand Vin');
+    await user.type(vintageInput, '2021');
 
     const submitButton = screen.getByRole('button', { name: /continue/i });
     await user.click(submitButton);
@@ -456,22 +476,28 @@ describe('WineInputForm', () => {
 
     const inputs = screen.getAllByRole('combobox');
     const regionInput = findInputByName(inputs, 'region');
-    const producerInput = screen.getByRole('textbox');
+    const producerInput = screen.getByLabelText(/wineForm\.fields\.producerName\.label/);
+    const wineNameInput = screen.getByLabelText(/wineForm\.fields\.wineName\.label/);
+    const vintageInput = screen.getByLabelText(/wineForm\.fields\.vintage\.label/);
 
     // Fill only required fields
     await user.type(regionInput, 'Bordeaux');
     await user.type(producerInput, 'Château Margaux');
+    await user.type(wineNameInput, 'Grand Vin');
+    await user.type(vintageInput, '2021');
     // Leave wine variety empty
 
     const submitButton = screen.getByRole('button', { name: /continue/i });
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(onSubmit).toHaveBeenCalledWith({
-        region: 'Bordeaux',
-        wineVariety: undefined,
-        producerName: 'Château Margaux',
-      });
+      expect(onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          region: 'Bordeaux',
+          wineVariety: undefined,
+          producerName: 'Château Margaux',
+        }),
+      );
     });
   });
 

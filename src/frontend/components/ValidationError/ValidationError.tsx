@@ -1,4 +1,5 @@
 import type { JSX } from 'react';
+import { useTranslation } from 'react-i18next';
 import * as styles from './ValidationError.css';
 
 export interface ValidationErrorProps {
@@ -21,6 +22,7 @@ export interface ValidationErrorProps {
  */
 export function ValidationError({ message, fieldId, className }: ValidationErrorProps): JSX.Element {
   const errorId = `${fieldId}-error`;
+  const { t } = useTranslation();
 
   return (
     <div id={errorId} className={`${styles.errorMessage} ${className || ''}`} role="alert" aria-live="polite">
@@ -31,7 +33,7 @@ export function ValidationError({ message, fieldId, className }: ValidationError
           clipRule="evenodd"
         />
       </svg>
-      <span className={styles.srOnly}>Error:</span>
+      <span className={styles.srOnly}>{t('error.label')}:</span>
       <span>{message}</span>
     </div>
   );

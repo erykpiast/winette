@@ -1,6 +1,7 @@
 import type { ApiError, ApiResponse, RateLimitError } from '#types/api';
 
-const API_BASE_URL = '';
+// Use the configured API base URL if provided (e.g., Vercel Functions domain)
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 /**
  * Custom error class for API errors

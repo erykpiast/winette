@@ -63,15 +63,15 @@ describe('App', () => {
       expect(screen.queryByText('Loading translations...')).not.toBeInTheDocument();
     });
 
-    // Check for language switcher dropdown - find it by looking for English option and getting the parent select
-    const englishOption = screen.getByText('English');
+    // Check for language switcher dropdown - assert using i18n key (tests use no-op t)
+    const englishOption = screen.getByText('languages.en');
     expect(englishOption).toBeInTheDocument();
     const languageSelect = englishOption.closest('select');
     expect(languageSelect).toBeInTheDocument();
 
     // Check for language options
-    expect(screen.getByText('English')).toBeInTheDocument();
-    expect(screen.getByText('Français')).toBeInTheDocument();
+    expect(screen.getByText('languages.en')).toBeInTheDocument();
+    expect(screen.getByText('languages.fr')).toBeInTheDocument();
   });
 
   it('renders all main sections', async () => {

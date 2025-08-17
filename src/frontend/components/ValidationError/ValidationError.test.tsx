@@ -33,7 +33,7 @@ describe('ValidationError', () => {
   it('renders screen reader text', () => {
     render(<ValidationError {...defaultProps} />);
 
-    expect(screen.getByText('Error:')).toBeInTheDocument();
+    expect(screen.getByText('error.label:')).toBeInTheDocument();
   });
 
   it('displays different error messages correctly', () => {

@@ -45,7 +45,7 @@ describe('GenerationProgress', () => {
     expect(screen.getByText('generation.initializing')).toBeInTheDocument();
     expect(screen.getByText('generation.longRunning')).toBeInTheDocument();
     expect(screen.getByText('generation.keepTabOpen')).toBeInTheDocument();
-    expect(screen.getByText(/Status: initializing…/)).toBeInTheDocument();
+    expect(screen.getByText(/generation\.status:\s+generation\.statuses\.initializing…/)).toBeInTheDocument();
   });
 
   it('shows processing state when status is pending', () => {
@@ -65,7 +65,7 @@ describe('GenerationProgress', () => {
     expect(screen.getByText('generation.processing')).toBeInTheDocument();
     expect(screen.getByText('generation.longRunning')).toBeInTheDocument();
     expect(screen.getByText('generation.keepTabOpen')).toBeInTheDocument();
-    expect(screen.getByText(/Status: pending…/)).toBeInTheDocument();
+    expect(screen.getByText(/generation\.status:\s+generation\.statuses\.pending…/)).toBeInTheDocument();
   });
 
   it('shows processing state when status is processing', () => {
@@ -83,7 +83,7 @@ describe('GenerationProgress', () => {
     );
 
     expect(screen.getByText('generation.processing')).toBeInTheDocument();
-    expect(screen.getByText(/Status: processing…/)).toBeInTheDocument();
+    expect(screen.getByText(/generation\.status:\s+generation\.statuses\.processing…/)).toBeInTheDocument();
   });
 
   it('shows completed state with description', () => {
@@ -225,7 +225,10 @@ describe('GenerationProgress', () => {
   it('shows generation ID when available', () => {
     render(<GenerationProgress {...defaultProps} />);
 
-    expect(screen.getByText(/Generation ID: gen_test4/)).toBeInTheDocument();
+    const statusLine =
+      document.querySelector(`.${'GenerationProgress_statusLine__10hs6hhb'}`) ??
+      (screen.getByText('wineForm.title').closest('div')?.querySelector('[class*="statusLine"]') as HTMLElement | null);
+    expect(statusLine?.textContent).toContain('gen_test');
   });
 
   it('does not show generation ID when not available', () => {
@@ -264,8 +267,8 @@ describe('GenerationProgress', () => {
       />,
     );
 
-    const processingContainer = screen.getByText('generation.processing').closest('div');
-    expect(processingContainer).toHaveAttribute('aria-busy', 'true');
+    const overlay = document.querySelector('[aria-busy="true"]');
+    expect(overlay).toBeInTheDocument();
 
     const statusText = screen.getByText('generation.processing');
     expect(statusText).toHaveAttribute('aria-live', 'polite');

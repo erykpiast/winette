@@ -1,16 +1,18 @@
 import { verifySignature } from '@upstash/qstash/nextjs';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { handleCorsPreflight } from '../lib/cors.js';
 import { supabase } from '../lib/database.js';
 import { logger } from '../lib/logger.js';
-import { generateLabelDescription } from '../services/label-generator.js';
+import { runLabelOrchestrator } from '../services/label-generator.js';
 import type { LabelGenerationJob } from '../types/label-generation.js';
 
 const handler = async (req: VercelRequest, res: VercelResponse) => {
+  if (handleCorsPreflight(req, res)) return;
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const job = req.body as LabelGenerationJob;
+  const job = req.body as LabelGenerationJob & { generationId?: string; idempotencyKey?: string };
 
   // Extract attempt count from QStash headers for retry testing
   const attemptCount = parseInt((req.headers['upstash-retried'] as string) || '0') + 1;
@@ -22,50 +24,19 @@ const handler = async (req: VercelRequest, res: VercelResponse) => {
   });
 
   try {
-    // Check if dependencies are available
-    if (!supabase) {
-      throw new Error('Backend configuration is invalid. Please check environment variables.');
-    }
+    if (!supabase) throw new Error('Backend configuration is invalid. Please check environment variables.');
 
-    // Update status to processing
-    await supabase
+    // Resolve the generationId from submission
+    const { data: generation } = await supabase
       .from('label_generations')
-      .update({
-        status: 'processing',
-        updated_at: new Date().toISOString(),
-      })
-      .eq('submission_id', job.submissionId);
+      .select('id')
+      .eq('submission_id', job.submissionId)
+      .single();
 
-    logger.info('Updated generation status to processing', {
-      submissionId: job.submissionId,
-    });
+    const generationId = job.generationId || generation?.id;
+    if (!generationId) throw new Error('Missing generationId');
 
-    // Generate the label description (with attempt count for testing)
-    const labelDescription = await generateLabelDescription(job, attemptCount);
-
-    logger.info('Generated label description', {
-      submissionId: job.submissionId,
-      style: job.style,
-    });
-
-    // Save results
-    const { error: updateError } = await supabase
-      .from('label_generations')
-      .update({
-        status: 'completed',
-        description: labelDescription,
-        completed_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      })
-      .eq('submission_id', job.submissionId);
-
-    if (updateError) {
-      throw new Error(`Failed to update generation: ${updateError.message}`);
-    }
-
-    logger.info('Generation completed successfully', {
-      submissionId: job.submissionId,
-    });
+    await runLabelOrchestrator({ generationId, job });
 
     return res.status(200).json({ success: true });
   } catch (error) {
@@ -78,7 +49,7 @@ const handler = async (req: VercelRequest, res: VercelResponse) => {
     });
 
     // Update status to failed
-    if (supabase) {
+    if (supabase && job?.submissionId) {
       await supabase
         .from('label_generations')
         .update({

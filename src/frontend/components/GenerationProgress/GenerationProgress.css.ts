@@ -261,6 +261,7 @@ export const resultSummary = style({
 });
 
 globalStyle(`${resultSummary} p`, {
+  color: '#111827',
   margin: '0.5rem 0',
 });
 
