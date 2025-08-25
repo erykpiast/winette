@@ -25,6 +25,8 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
+    "test:integration": "INTEGRATION_TESTS=true vitest src/backend/tests/integration-upload.test.ts",
+    "test:image-generation": "tsx scripts/test-image-generation-comprehensive.ts",
     "test:rate-limit": "tsx scripts/test-rate-limiting.ts",
     "debug:rate-limit": "tsx scripts/debug-rate-limiting.ts",
     "test:performance": "tsx scripts/test-api-performance.ts",
@@ -68,6 +70,7 @@
     "react-error-boundary": "6.0.0",
     "react-hook-form": "7.62.0",
     "react-i18next": "^15.0.0",
+    "sharp": "0.34.3",
     "zod": "4.0.16",
     "zod-openapi": "5.3.0"
   },

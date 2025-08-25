@@ -3,6 +3,7 @@ import { supabase } from '../lib/database.js';
 import { logger } from '../lib/logger.js';
 import type { LabelDSL, LabelGenerationJob } from '../types/label-generation.js';
 import { LabelDSLSchema } from '../types/label-generation.js';
+import { defaultImageGenerationService, type ImagePromptSpec } from './image-generation-service.js';
 import { generateMockLabelDSL } from './mock-data-generator.js';
 
 // Step identifiers for orchestration
@@ -157,38 +158,53 @@ export async function runLabelOrchestrator(params: {
       output: imagePromptsOutput,
     });
 
-    // Step 3: image-generate (fan-out per prompt)
+    // Step 3: image-generate (using real ImageGenerationService)
     currentStep = 'image-generate';
     await upsertStepRow(generationId, currentStep, 'pending');
     await claimStep(generationId, currentStep, imagePromptsOutput);
 
-    for (const p of imagePromptsOutput.prompts) {
-      const checksum = `checksum-${p.id}`;
-      const url = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==`;
-      const { error: assetErr } = await supabase.from('label_assets').insert([
-        {
-          generation_id: generationId,
-          asset_id: p.id,
-          prompt: p.prompt,
-          model: 'mock-model',
-          seed: '0',
-          width: 1024,
-          height: 1024,
-          format: 'png',
-          checksum,
-          url,
-        },
-      ]);
-      if (assetErr && assetErr.code !== '23505') {
-        throw new Error(`Failed to insert asset: ${assetErr.message}`);
+    // Convert prompts to ImagePromptSpec format
+    const imagePromptSpecs: ImagePromptSpec[] = imagePromptsOutput.prompts.map((prompt, index) => ({
+      id: prompt.id,
+      purpose: index === 0 ? 'background' : index === 1 ? 'foreground' : 'decoration',
+      prompt: prompt.prompt,
+      negativePrompt: 'blurry, low quality, pixelated, distorted',
+      aspect: '4:3', // Standard label aspect ratio
+      guidance: 7.5,
+    }));
+
+    // Initialize and generate images using the service
+    await defaultImageGenerationService.initialize();
+    const { updatedAssets, errors } = await defaultImageGenerationService.generateAndStoreImages(
+      generationId,
+      imagePromptSpecs,
+    );
+
+    if (errors.length > 0) {
+      logger.error('Image generation errors occurred', {
+        generationId,
+        errors,
+        successfulAssets: updatedAssets.length,
+      });
+
+      // If no images were generated successfully, fail the step
+      if (updatedAssets.length === 0) {
+        throw new Error(`Image generation failed: ${errors.join(', ')}`);
       }
+
+      // Log warnings for partial failures but continue
+      logger.warn('Partial image generation success', {
+        generationId,
+        generated: updatedAssets.length,
+        failed: errors.length,
+      });
     }
 
     const imageGenerateOutput = ImageGenerateOutputSchema.parse({
-      assets: imagePromptsOutput.prompts.map((p) => ({
-        id: p.id,
-        url: `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==`,
-        checksum: `checksum-${p.id}`,
+      assets: updatedAssets.map((asset) => ({
+        id: asset.id,
+        url: asset.url,
+        checksum: 'generated', // Checksum is handled internally by upload service
       })),
     });
     await upsertStepRow(generationId, currentStep, 'completed', {
@@ -196,10 +212,14 @@ export async function runLabelOrchestrator(params: {
       output: imageGenerateOutput,
     });
 
-    // Step 4: detailed-layout
+    // Step 4: detailed-layout (integrate generated assets into DSL)
     currentStep = 'detailed-layout';
     await upsertStepRow(generationId, currentStep, 'pending');
-    const labelDSL = await generateLabelDSL(job, 1);
+
+    // Generate base DSL and integrate with real generated assets
+    const baseLabelDSL = await generateLabelDSL(job, 1);
+    const labelDSL = await integrateGeneratedAssetsIntoDSL(baseLabelDSL, updatedAssets, generationId);
+
     await claimStep(generationId, currentStep, {
       assets: imageGenerateOutput.assets,
       labelDSL,
@@ -260,6 +280,59 @@ export async function runLabelOrchestrator(params: {
       .eq('id', generationId);
     throw err;
   }
+}
+
+/**
+ * Integrate real generated assets into the DSL, replacing placeholder assets
+ */
+async function integrateGeneratedAssetsIntoDSL(
+  baseDSL: LabelDSL,
+  generatedAssets: LabelDSL['assets'],
+  generationId: string,
+): Promise<LabelDSL> {
+  logger.info('Integrating generated assets into DSL', {
+    generationId,
+    baseAssetCount: baseDSL.assets?.length || 0,
+    generatedAssetCount: generatedAssets.length,
+  });
+
+  // Replace placeholder assets with real generated ones
+  const updatedDSL: LabelDSL = {
+    ...baseDSL,
+    assets: generatedAssets, // Use real generated assets instead of placeholders
+  };
+
+  // Update any elements that reference assets to use real generated asset IDs
+  if (updatedDSL.elements && generatedAssets.length > 0) {
+    updatedDSL.elements = updatedDSL.elements.map((element: LabelDSL['elements'][number]) => {
+      if (element.type === 'image' && element.assetId) {
+        // Map placeholder asset IDs to real generated asset IDs
+        const matchingAsset = generatedAssets.find(
+          (asset) =>
+            element.assetId === asset.id ||
+            (element.assetId.includes('background') && asset.id.includes('prompt-1')) ||
+            (element.assetId.includes('foreground') && asset.id.includes('prompt-2')) ||
+            (element.assetId.includes('decoration') && asset.id.includes('prompt-3')),
+        );
+
+        if (matchingAsset) {
+          return {
+            ...element,
+            assetId: matchingAsset.id,
+          };
+        }
+      }
+      return element;
+    });
+  }
+
+  logger.info('DSL integration completed', {
+    generationId,
+    finalAssetCount: updatedDSL.assets?.length || 0,
+    elementCount: updatedDSL.elements?.length || 0,
+  });
+
+  return updatedDSL;
 }
 
 export async function generateLabelDSL(job: LabelGenerationJob, attemptCount: number = 1): Promise<LabelDSL> {
