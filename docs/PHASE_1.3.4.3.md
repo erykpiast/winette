@@ -8,8 +8,10 @@ This phase defines object storage and metadata persistence for generated assets,
 
 - Supabase Storage bucket: `label-images`
 - Public CDN enabled; URLs saved to DB
-- File path: `gen/{generationId}/{assetId}.{ext}`
-  - `assetId` comes from the DSL `assets[].id`; persist this as `asset_id` in DB (unique per generation)
+- File path: `content/{checksum}.{ext}` (globally content-addressable)
+  - Full SHA256 checksum ensures unique paths for different content
+  - Same content gets same URL globally, enabling optimal deduplication
+  - Safe `immutable` caching because URL never changes content
 - Bucket access: make the bucket public. Ensure CORS allows GET from the app origin and set long-lived cache headers on
   objects (e.g., `Cache-Control: public, max-age=31536000, immutable`).
 - Always return absolute URLs from the upload API (e.g., via Supabase `getPublicUrl`). Do not assume any SPA basePath.
@@ -19,7 +21,8 @@ This phase defines object storage and metadata persistence for generated assets,
 See PHASE_1.3.4.1 `label_assets` table. Notable constraints:
 
 - `unique (generation_id, asset_id)` ensures one row per DSL asset per generation
-- Index on `checksum` supports deduplication short-circuiting
+- Simple index on `checksum` supports global content-addressable lookup
+- NOT NULL constraints on width, height, format, checksum (guaranteed by upload API)
 
 ## Upload API (server-side)
 
@@ -43,10 +46,10 @@ export async function uploadImage({
 }): Promise<UploadResult> {
   // Pseudocode:
   // 1) Detect format (png/jpg/webp), read dimensions
-  // 2) Compute checksum (e.g., sha256) from buffer
-  // 3) Dedup check: if a row exists for (generation_id, asset_id, checksum), short-circuit and return existing URL/metadata
-  // 4) Upload to `gen/${generationId}/${assetId}.${ext}` with Cache-Control headers
-  // 5) Upsert label_assets on (generation_id, asset_id) with new url/format/width/height/checksum
+  // 2) Use provided checksum or compute sha256 from buffer
+  // 3) Global dedup check: if any row exists with this checksum, reuse URL and create alias record
+  // 4) Upload to `content/${checksum}.${ext}` with Cache-Control headers
+  // 5) Atomically upsert label_assets with url/format/width/height/checksum/prompt/model/seed
   // 6) Return absolute public URL and metadata
 }
 ```
@@ -80,16 +83,26 @@ export interface ImageModelAdapter {
 ## Flow
 
 1. For each `ImagePromptSpec`, call adapter.generate
-2. Compute checksum. If an existing `label_assets` row matches `(generation_id, asset_id, checksum)`, reuse its URL/metadata
-   and skip upload. Otherwise upload to storage and upsert the row
+2. Call uploadImage() with image data and metadata - content-addressable deduplication:
+   - Compute checksum (unless provided)  
+   - Check if (generation_id, asset_id) record exists with same checksum
+   - If exists: return existing URL without re-upload
+   - If new: upload to content/{checksum}.{ext} and create record
 3. Update DSL `assets[]` with `{ id: assetId, url, width, height }`
 
-Dedup query example:
+Query patterns and indexing:
 
 ```sql
+-- Primary query: Check existing record (uses unique constraint)
+SELECT url, width, height, format, checksum
+FROM label_assets
+WHERE generation_id = $1 AND asset_id = $2
+LIMIT 1;
+
+-- Secondary query: Global content lookup (uses checksum index)  
 SELECT url, width, height, format
 FROM label_assets
-WHERE generation_id = $1 AND asset_id = $2 AND checksum = $3
+WHERE checksum = $1
 LIMIT 1;
 ```
 

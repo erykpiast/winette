@@ -40,6 +40,21 @@ export interface LabelGeneration {
   completed_at: string | null;
 }
 
+export interface LabelAsset {
+  id: string;
+  generation_id: string;
+  asset_id: string;
+  prompt: string | null;
+  model: string | null;
+  seed: string | null;
+  width: number; // NOT NULL - guaranteed by upload API
+  height: number; // NOT NULL - guaranteed by upload API
+  format: string; // NOT NULL - guaranteed by upload API
+  checksum: string; // NOT NULL - guaranteed by upload API
+  url: string;
+  created_at: string;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -57,6 +72,11 @@ export interface Database {
         Row: LabelGeneration;
         Insert: Omit<LabelGeneration, 'id' | 'created_at' | 'updated_at'>;
         Update: Partial<Omit<LabelGeneration, 'id' | 'created_at' | 'updated_at'>>;
+      };
+      label_assets: {
+        Row: LabelAsset;
+        Insert: Omit<LabelAsset, 'id' | 'created_at'>;
+        Update: Partial<Omit<LabelAsset, 'id' | 'created_at'>>;
       };
     };
   };
@@ -83,7 +103,7 @@ export async function initializeDatabase() {
     return;
   }
 
-  const requiredTables = ['wine_labels', 'wine_label_submissions', 'label_generations'];
+  const requiredTables = ['wine_labels', 'wine_label_submissions', 'label_generations', 'label_assets'];
   const missingTables: string[] = [];
 
   try {
