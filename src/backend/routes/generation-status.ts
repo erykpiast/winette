@@ -4,7 +4,7 @@ import { handleCorsPreflight } from '../lib/cors.js';
 import { supabase } from '../lib/database.js';
 import { logger } from '../lib/logger.js';
 import { applyRateLimit } from '../lib/rate-limiter.js';
-import type { GenerationStatusResponse, LabelDescription } from '../types/label-generation.js';
+import type { GenerationStatusResponse } from '../types/label-generation.js';
 import { ApiError, createApiError } from './wine-labels.js';
 
 // Validation schema for generation ID parameter
@@ -101,8 +101,14 @@ async function getGenerationStatus(query: Record<string, unknown>): Promise<Gene
   };
 
   // Only add optional properties if they exist
+  if (generation.phase) {
+    response.phase = generation.phase;
+  }
+  if (generation.design_scheme) {
+    response.designScheme = generation.design_scheme;
+  }
   if (generation.description) {
-    response.description = generation.description as LabelDescription;
+    response.description = generation.description;
   }
   if (generation.error) {
     response.error = generation.error;

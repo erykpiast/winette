@@ -1,0 +1,38 @@
+{
+  "version": "1",
+  "canvas": {
+    "width": 500,
+    "height": 700,
+    "dpi": 144,
+    "background": "#FAFAFA"
+  },
+  "palette": {
+    "primary": "#333333",
+    "secondary": "#666666",
+    "accent": "#999999",
+    "background": "#FAFAFA",
+    "temperature": "neutral",
+    "contrast": "low"
+  },
+  "typography": {
+    "primary": {
+      "family": "Helvetica Neue",
+      "weight": 400,
+      "style": "normal",
+      "letterSpacing": 0
+    },
+    "secondary": {
+      "family": "Helvetica Neue",
+      "weight": 300,
+      "style": "normal",
+      "letterSpacing": 0
+    },
+    "hierarchy": {
+      "producerEmphasis": "subtle",
+      "vintageProminence": "standard",
+      "regionDisplay": "prominent"
+    }
+  },
+  "assets": [],
+  "elements": []
+}

@@ -1,5 +1,5 @@
 import { supabase } from '../src/backend/lib/database.js';
-import { generateLabelDescription } from '../src/backend/services/label-generator.js';
+import { generateLabelDSL } from '../src/backend/services/label-generator.js';
 import type { LabelGenerationJob, LabelStyleId } from '../src/backend/types/label-generation.js';
 
 async function testBackendLogic() {
@@ -57,10 +57,10 @@ async function testLabelGeneration(style: LabelStyleId, variety: string, descrip
       },
     };
 
-    const result = await generateLabelDescription(job, 1);
+    const result = await generateLabelDSL(job, 1);
     console.log(`   ✅ Generated ${style} style description`);
-    console.log(`   🎨 Mood: ${result.mood.overall}`);
-    console.log(`   🎨 Color palette: ${result.colorPalette.primary.name} + ${result.colorPalette.secondary.name}`);
+    console.log(`   🎨 Version: ${result.version}`);
+    console.log(`   🎨 Color palette: ${result.palette.primary} (${result.palette.temperature})`);
   } catch (error) {
     console.log(`   ❌ Generation failed: ${error instanceof Error ? error.message : error}`);
   }
@@ -85,7 +85,7 @@ async function testRetryBehavior() {
 
     // Test attempt 1 (should fail)
     try {
-      await generateLabelDescription(job, 1);
+      await generateLabelDSL(job, 1);
       console.log('   ❌ Expected failure on attempt 1 but succeeded');
     } catch (error) {
       console.log(`   ✅ Attempt 1 failed as expected: ${error instanceof Error ? error.message : error}`);
@@ -93,7 +93,7 @@ async function testRetryBehavior() {
 
     // Test attempt 2 (should fail)
     try {
-      await generateLabelDescription(job, 2);
+      await generateLabelDSL(job, 2);
       console.log('   ❌ Expected failure on attempt 2 but succeeded');
     } catch (error) {
       console.log(`   ✅ Attempt 2 failed as expected: ${error instanceof Error ? error.message : error}`);
@@ -101,9 +101,9 @@ async function testRetryBehavior() {
 
     // Test attempt 3 (should succeed)
     try {
-      const result = await generateLabelDescription(job, 3);
+      const result = await generateLabelDSL(job, 3);
       console.log('   ✅ Attempt 3 succeeded as expected');
-      console.log(`   🎨 Generated description mood: ${result.mood.overall}`);
+      console.log(`   🎨 Generated DSL version: ${result.version}`);
     } catch (error) {
       console.log(`   ❌ Expected success on attempt 3 but failed: ${error instanceof Error ? error.message : error}`);
     }
@@ -130,7 +130,7 @@ async function testErrorBehavior() {
     };
 
     try {
-      await generateLabelDescription(job, 1);
+      await generateLabelDSL(job, 1);
       console.log('   ❌ Expected error but generation succeeded');
     } catch (error) {
       console.log(`   ✅ Error thrown as expected: ${error instanceof Error ? error.message : error}`);
@@ -193,12 +193,19 @@ async function testDatabaseOperations() {
     console.log(`   ✅ Created generation with ID: ${generation.id}`);
 
     // Test status updates
-    const mockLabelDescription = {
-      colorPalette: {
-        primary: { hex: '#8B0000', rgb: [139, 0, 0], name: 'Dark Red' },
-        secondary: { hex: '#DAA520', rgb: [218, 165, 32], name: 'Goldenrod' },
-        accent: { hex: '#FFD700', rgb: [255, 215, 0], name: 'Gold' },
-        background: { hex: '#FFF8DC', rgb: [255, 248, 220], name: 'Cornsilk' },
+    const mockLabelDSL = {
+      version: '1',
+      canvas: {
+        width: 800,
+        height: 1200,
+        dpi: 300,
+        background: '#FFF8DC',
+      },
+      palette: {
+        primary: '#8B0000',
+        secondary: '#DAA520',
+        accent: '#FFD700',
+        background: '#FFF8DC',
         temperature: 'warm' as const,
         contrast: 'high' as const,
       },
@@ -208,14 +215,12 @@ async function testDatabaseOperations() {
           weight: 400,
           style: 'normal' as const,
           letterSpacing: 1,
-          characteristics: ['test'],
         },
         secondary: {
           family: 'Test Font',
           weight: 400,
           style: 'normal' as const,
           letterSpacing: 1,
-          characteristics: ['test'],
         },
         hierarchy: {
           producerEmphasis: 'balanced' as const,
@@ -223,30 +228,15 @@ async function testDatabaseOperations() {
           regionDisplay: 'integrated' as const,
         },
       },
-      layout: {
-        alignment: 'centered' as const,
-        composition: 'classical' as const,
-        whitespace: 'balanced' as const,
-        structure: 'rigid' as const,
-      },
-      imagery: {
-        primaryTheme: 'abstract' as const,
-        elements: ['test'],
-        style: 'minimal' as const,
-        complexity: 'simple' as const,
-      },
-      decorations: [],
-      mood: {
-        overall: 'Test mood',
-        attributes: ['test'],
-      },
+      assets: [],
+      elements: [],
     };
 
     const { error: updateError } = await supabase
       .from('label_generations')
       .update({
         status: 'completed',
-        description: mockLabelDescription,
+        description: mockLabelDSL,
         completed_at: new Date().toISOString(),
       })
       .eq('id', generation.id);

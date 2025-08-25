@@ -1,0 +1,47 @@
+{
+  "version": "1",
+  "canvas": {
+    "width": 800,
+    "height": 1200,
+    "dpi": 144,
+    "background": "#FFFFFF"
+  },
+  "palette": {
+    "primary": "#5A2A27",
+    "secondary": "#C9B79C",
+    "accent": "#A84C48",
+    "background": "#FFFFFF",
+    "temperature": "warm",
+    "contrast": "medium"
+  },
+  "typography": {
+    "primary": {
+      "family": "Arial",
+      "weight": 400,
+      "style": "normal",
+      "letterSpacing": 0
+    },
+    "secondary": {
+      "family": "Arial",
+      "weight": 400,
+      "style": "normal",
+      "letterSpacing": 0
+    },
+    "hierarchy": {
+      "producerEmphasis": "dominant",
+      "vintageProminence": "featured",
+      "regionDisplay": "integrated"
+    }
+  },
+  "assets": [],
+  "elements": [
+    {
+      "id": "missing-asset",
+      "type": "image",
+      "assetId": "nonexistent",
+      "fit": "contain",
+      "bounds": { "x": 0.1, "y": 0.1, "w": 0.8, "h": 0.4 },
+      "z": 1
+    }
+  ]
+}

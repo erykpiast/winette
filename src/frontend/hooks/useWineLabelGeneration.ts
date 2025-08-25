@@ -16,15 +16,19 @@ export interface GenerationStatus {
   id: string;
   submissionId: string;
   status: 'pending' | 'processing' | 'completed' | 'failed';
-  description?: LabelDescription;
+  phase?: 'design-scheme' | 'image-prompts' | 'image-generate' | 'detailed-layout' | 'render' | 'refine';
+  designScheme?: DesignScheme;
+  description?: LabelDSL;
   error?: string;
   createdAt: string;
   updatedAt: string;
   completedAt?: string;
 }
 
-interface LabelDescription {
-  colorPalette: {
+// Phase 1: Design Scheme (high-level design description)
+// Using the same structure as the backend but duplicated for frontend independence
+interface DesignScheme {
+  palette: {
     primary: { hex: string; rgb: [number, number, number]; name: string };
     secondary: { hex: string; rgb: [number, number, number]; name: string };
     accent: { hex: string; rgb: [number, number, number]; name: string };
@@ -75,6 +79,91 @@ interface LabelDescription {
     overall: string;
     attributes: string[];
   };
+}
+
+// Label DSL type for Phase 1.3.4.2
+interface LabelDSL {
+  version: '1';
+  canvas: {
+    width: number;
+    height: number;
+    dpi: number;
+    background: string;
+  };
+  palette: {
+    primary: string;
+    secondary: string;
+    accent: string;
+    background: string;
+    temperature: 'warm' | 'cool' | 'neutral';
+    contrast: 'high' | 'medium' | 'low';
+  };
+  typography: {
+    primary: {
+      family: string;
+      weight: number;
+      style: 'normal' | 'italic';
+      letterSpacing: number;
+    };
+    secondary: {
+      family: string;
+      weight: number;
+      style: 'normal' | 'italic';
+      letterSpacing: number;
+    };
+    hierarchy: {
+      producerEmphasis: 'dominant' | 'balanced' | 'subtle';
+      vintageProminence: 'featured' | 'standard' | 'minimal';
+      regionDisplay: 'prominent' | 'integrated' | 'subtle';
+    };
+  };
+  fonts?: {
+    primaryUrl?: string;
+    secondaryUrl?: string;
+  };
+  assets: Array<{
+    id: string;
+    type: 'image';
+    url: string;
+    width: number;
+    height: number;
+  }>;
+  elements: Array<
+    | {
+        id: string;
+        type: 'text';
+        text: string;
+        font: 'primary' | 'secondary';
+        color: 'primary' | 'secondary' | 'accent' | 'background';
+        bounds: { x: number; y: number; w: number; h: number };
+        fontSize: number;
+        align: 'left' | 'center' | 'right';
+        lineHeight: number;
+        maxLines: number;
+        textTransform: 'uppercase' | 'lowercase' | 'none';
+        z: number;
+      }
+    | {
+        id: string;
+        type: 'image';
+        assetId: string;
+        bounds: { x: number; y: number; w: number; h: number };
+        fit: 'contain' | 'cover' | 'fill';
+        opacity: number;
+        rotation: number;
+        z: number;
+      }
+    | {
+        id: string;
+        type: 'shape';
+        shape: 'rect' | 'line';
+        color: 'primary' | 'secondary' | 'accent' | 'background';
+        bounds: { x: number; y: number; w: number; h: number };
+        strokeWidth: number;
+        rotation: number;
+        z: number;
+      }
+  >;
 }
 
 // Transform form data to backend API format

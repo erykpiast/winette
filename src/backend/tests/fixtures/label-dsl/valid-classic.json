@@ -1,0 +1,99 @@
+{
+  "version": "1",
+  "canvas": {
+    "width": 800,
+    "height": 1200,
+    "dpi": 144,
+    "background": "#FFFFFF"
+  },
+  "palette": {
+    "primary": "#5A2A27",
+    "secondary": "#C9B79C",
+    "accent": "#A84C48",
+    "background": "#FFFFFF",
+    "temperature": "warm",
+    "contrast": "medium"
+  },
+  "typography": {
+    "primary": {
+      "family": "Cinzel",
+      "weight": 600,
+      "style": "normal",
+      "letterSpacing": 0
+    },
+    "secondary": {
+      "family": "Lora",
+      "weight": 400,
+      "style": "italic",
+      "letterSpacing": 0
+    },
+    "hierarchy": {
+      "producerEmphasis": "dominant",
+      "vintageProminence": "featured",
+      "regionDisplay": "integrated"
+    }
+  },
+  "fonts": {
+    "primaryUrl": "https://fonts.googleapis.com/css2?family=Cinzel:wght@600&display=swap",
+    "secondaryUrl": "https://fonts.googleapis.com/css2?family=Lora:ital,wght@1,400&display=swap"
+  },
+  "assets": [
+    {
+      "id": "hero",
+      "type": "image",
+      "url": "https://cdn.example.com/images/vineyard-hero.png",
+      "width": 1024,
+      "height": 768
+    }
+  ],
+  "elements": [
+    {
+      "id": "producer",
+      "type": "text",
+      "text": "Château Margaux",
+      "font": "primary",
+      "color": "primary",
+      "bounds": { "x": 0.1, "y": 0.08, "w": 0.8, "h": 0.08 },
+      "align": "center",
+      "fontSize": 48,
+      "lineHeight": 1.2,
+      "maxLines": 1,
+      "textTransform": "uppercase",
+      "z": 10
+    },
+    {
+      "id": "heroImage",
+      "type": "image",
+      "assetId": "hero",
+      "fit": "contain",
+      "opacity": 1,
+      "rotation": 0,
+      "bounds": { "x": 0.1, "y": 0.2, "w": 0.8, "h": 0.4 },
+      "z": 1
+    },
+    {
+      "id": "divider",
+      "type": "shape",
+      "shape": "line",
+      "color": "secondary",
+      "strokeWidth": 2,
+      "rotation": 0,
+      "bounds": { "x": 0.2, "y": 0.65, "w": 0.6, "h": 0.002 },
+      "z": 5
+    },
+    {
+      "id": "vintage",
+      "type": "text",
+      "text": "2019",
+      "font": "secondary",
+      "color": "accent",
+      "bounds": { "x": 0.3, "y": 0.7, "w": 0.4, "h": 0.05 },
+      "align": "center",
+      "fontSize": 36,
+      "lineHeight": 1.2,
+      "maxLines": 1,
+      "textTransform": "none",
+      "z": 10
+    }
+  ]
+}

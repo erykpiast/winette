@@ -133,7 +133,7 @@ async function pollGenerationStatus(generationId: string, testName: string) {
 
       if (status.status === 'completed') {
         console.log(`   ✅ Generation completed successfully!`);
-        console.log(`   🎨 Description style: ${status.description?.mood?.overall || 'unknown'}`);
+        console.log(`   🎨 DSL version: ${status.description?.version || 'unknown'}`);
         return;
       } else if (status.status === 'failed') {
         console.log(`   ❌ Generation failed: ${status.error}`);

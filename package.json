@@ -41,7 +41,9 @@
     "vanilla-extract": "vanilla-extract --watch",
     "prepare": "husky",
     "lint:md": "markdownlint-cli2",
-    "lint:md:fix": "markdownlint-cli2 --fix"
+    "lint:md:fix": "markdownlint-cli2 --fix",
+    "validate:label-dsl": "tsx scripts/validate-label-dsl.ts",
+    "generate:label-schema": "tsx scripts/generate-label-schema.ts"
   },
   "dependencies": {
     "@newrelic/browser-agent": "1.294.0",
@@ -85,6 +87,8 @@
     "@vercel/node": "5.3.8",
     "@vitejs/plugin-react": "4.7.0",
     "@vitest/ui": "3.2.4",
+    "ajv": "8.17.1",
+    "ajv-formats": "3.0.1",
     "concurrently": "9.2.0",
     "husky": "9.1.7",
     "jsdom": "26.1.0",

@@ -95,11 +95,18 @@ describe('GenerationProgress', () => {
           submissionId: 'sub_test123',
           status: 'completed',
           description: {
-            colorPalette: {
-              primary: { hex: '#722F37', rgb: [114, 47, 55], name: 'Wine Red' },
-              secondary: { hex: '#D4AF37', rgb: [212, 175, 55], name: 'Gold' },
-              accent: { hex: '#2C3E50', rgb: [44, 62, 80], name: 'Navy' },
-              background: { hex: '#F5F5DC', rgb: [245, 245, 220], name: 'Beige' },
+            version: '1',
+            canvas: {
+              width: 800,
+              height: 1200,
+              dpi: 300,
+              background: '#F5F5DC',
+            },
+            palette: {
+              primary: '#722F37',
+              secondary: '#D4AF37',
+              accent: '#2C3E50',
+              background: '#F5F5DC',
               temperature: 'warm',
               contrast: 'high',
             },
@@ -109,14 +116,12 @@ describe('GenerationProgress', () => {
                 weight: 700,
                 style: 'normal',
                 letterSpacing: 0.02,
-                characteristics: ['serif'],
               },
               secondary: {
                 family: 'Lato',
                 weight: 400,
                 style: 'normal',
                 letterSpacing: 0.01,
-                characteristics: ['sans-serif'],
               },
               hierarchy: {
                 producerEmphasis: 'dominant',
@@ -124,23 +129,8 @@ describe('GenerationProgress', () => {
                 regionDisplay: 'prominent',
               },
             },
-            layout: {
-              alignment: 'centered',
-              composition: 'classical',
-              whitespace: 'generous',
-              structure: 'rigid',
-            },
-            imagery: {
-              primaryTheme: 'estate',
-              elements: ['château'],
-              style: 'engraving',
-              complexity: 'detailed',
-            },
-            decorations: [],
-            mood: {
-              overall: 'sophisticated and traditional',
-              attributes: ['luxurious'],
-            },
+            assets: [],
+            elements: [],
           },
           createdAt: '2024-01-20T14:30:00Z',
           updatedAt: '2024-01-20T14:30:45Z',
@@ -150,8 +140,8 @@ describe('GenerationProgress', () => {
     );
 
     expect(screen.getByText(/generation.completedTitle/)).toBeInTheDocument();
-    expect(screen.getByText(/sophisticated and traditional/)).toBeInTheDocument();
-    expect(screen.getByText(/Wine Red \+ Gold/)).toBeInTheDocument();
+    expect(screen.getByText(/warm/)).toBeInTheDocument();
+    expect(screen.getByText(/#722F37 \+ #D4AF37/)).toBeInTheDocument();
     expect(screen.getByText(/Playfair Display/)).toBeInTheDocument();
   });
 

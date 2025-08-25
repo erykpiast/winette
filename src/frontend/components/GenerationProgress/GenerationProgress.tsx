@@ -32,35 +32,67 @@ export function GenerationProgress({
   const statusKey = (status?.status as string | undefined) ?? 'initializing';
   const friendlyStatus = t(`generation.statuses.${statusKey}`, { defaultValue: statusKey });
 
-  // Show completed state
-  if (isCompleted && 'description' in status && status.description) {
-    const { colorPalette, typography, mood } = status.description;
+  // Show completed state - handle both design scheme and full DSL
+  if (isCompleted) {
+    // Prefer full DSL if available, fall back to design scheme
+    const description = status && 'description' in status ? status.description : null;
+    const designScheme = status && 'designScheme' in status ? status.designScheme : null;
 
-    return (
-      <div className={styles.completedContainer}>
-        <h2 className={styles.successTitle}>✅ {t('generation.completedTitle')}</h2>
-        <div className={styles.resultSummary}>
-          <p>
-            <strong>{t('generation.result.moodLabel')}:</strong> {mood.overall}
-          </p>
-          <p>
-            <strong>{t('generation.result.paletteLabel')}:</strong> {colorPalette.primary.name} +{' '}
-            {colorPalette.secondary.name}
-          </p>
-          <p>
-            <strong>{t('generation.result.typographyLabel')}:</strong> {typography.primary.family}
-          </p>
+    if (description) {
+      // Full DSL available - detailed-layout phase complete
+      const { palette, typography } = description;
+      return (
+        <div className={styles.completedContainer}>
+          <h2 className={styles.successTitle}>✅ {t('generation.completedTitle')}</h2>
+          <div className={styles.resultSummary}>
+            <p>
+              <strong>{t('generation.result.temperatureLabel')}:</strong> {palette.temperature}
+            </p>
+            <p>
+              <strong>{t('generation.result.paletteLabel')}:</strong> {palette.primary} + {palette.secondary}
+            </p>
+            <p>
+              <strong>{t('generation.result.typographyLabel')}:</strong> {typography.primary.family}
+            </p>
+          </div>
+          <div className={styles.actions}>
+            <button type="button" className={styles.primaryButton} onClick={onRestart}>
+              {t('generation.actions.another')}
+            </button>
+            <button type="button" className={styles.secondaryButton} onClick={onCancel}>
+              {t('generation.actions.edit')}
+            </button>
+          </div>
         </div>
-        <div className={styles.actions}>
-          <button type="button" className={styles.primaryButton} onClick={onRestart}>
-            {t('generation.actions.another')}
-          </button>
-          <button type="button" className={styles.secondaryButton} onClick={onCancel}>
-            {t('generation.actions.edit')}
-          </button>
+      );
+    } else if (designScheme) {
+      // Only design scheme available - design-scheme phase complete
+      const { palette, typography } = designScheme;
+      return (
+        <div className={styles.completedContainer}>
+          <h2 className={styles.successTitle}>✅ {t('generation.designCompleted')}</h2>
+          <div className={styles.resultSummary}>
+            <p>
+              <strong>{t('generation.result.temperatureLabel')}:</strong> {palette.temperature}
+            </p>
+            <p>
+              <strong>{t('generation.result.paletteLabel')}:</strong> {palette.primary.name} + {palette.secondary.name}
+            </p>
+            <p>
+              <strong>{t('generation.result.typographyLabel')}:</strong> {typography.primary.family}
+            </p>
+          </div>
+          <div className={styles.actions}>
+            <button type="button" className={styles.primaryButton} onClick={onRestart}>
+              {t('generation.actions.another')}
+            </button>
+            <button type="button" className={styles.secondaryButton} onClick={onCancel}>
+              {t('generation.actions.edit')}
+            </button>
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
   }
 
   // Show failed state

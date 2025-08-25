@@ -1,0 +1,17 @@
+{
+  "version": "1",
+  "canvas": {
+    "width": 800,
+    "height": 1200
+  },
+  "palette": {
+    "primary": "#5A2A27",
+    "secondary": "#C9B79C"
+  },
+  "typography": {
+    "primary": {
+      "family": "Arial",
+      "weight": 400
+    }
+  }
+}
