@@ -10,5 +10,5 @@
     "MD041": false
   },
   "globs": ["**/*.md"],
-  "ignores": ["node_modules/**", "dist/**", "storybook-static/**"]
+  "ignores": ["node_modules/**", "dist/**", "storybook-static/**", ".claude/**"]
 }
