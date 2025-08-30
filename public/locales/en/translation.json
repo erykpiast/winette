@@ -169,6 +169,8 @@
       "failed": "Failed"
     },
     "completedTitle": "Your label description is ready!",
+    "labelCompleted": "Your wine label is ready!",
+    "designCompleted": "Label design scheme completed",
     "failedTitle": "We couldn't complete your request",
     "actions": {
       "cancel": "Cancel and edit",
@@ -207,6 +209,20 @@
     },
     "validation": {
       "failed": "Validation failed"
+    }
+  },
+  "renderedLabel": {
+    "title": "Your Wine Label",
+    "loading": "Loading your label...",
+    "download": "Download Label",
+    "alt": "Wine label for {{producer}} {{wine}}",
+    "error": {
+      "failed": "Failed to load the rendered label image"
+    },
+    "details": {
+      "dimensions": "Dimensions",
+      "region": "Region",
+      "variety": "Variety"
     }
   }
 }

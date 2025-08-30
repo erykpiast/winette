@@ -412,3 +412,92 @@ export class MockImageModelAdapter implements ImageModelAdapter {
     return crypto.createHash('sha256').update(JSON.stringify(spec)).digest('hex').substring(0, 8);
   }
 }
+
+// ============================================================================
+// Production Image Model Adapter (Bridge to LangChain Pipeline)
+// ============================================================================
+
+import type { ImageModelAdapter as LangChainImageModelAdapter } from './langchain-pipeline/index.js';
+import { pipelineConfig } from './langchain-pipeline/index.js';
+import { autoConfigurePipeline } from './production-config.js';
+
+/**
+ * Production Image Model Adapter that bridges LangChain pipeline to ImageGenerationService
+ * Converts LangChain's URL-based output to Buffer-based format expected by ImageGenerationService
+ */
+export class ProductionImageModelAdapter implements ImageModelAdapter {
+  private langchainAdapter: LangChainImageModelAdapter;
+  private initialized = false;
+
+  constructor() {
+    // Initialize pipeline configuration for production
+    autoConfigurePipeline();
+    this.langchainAdapter = pipelineConfig.adapters.image;
+  }
+
+  async generate(spec: ImagePromptSpec): Promise<{ data: Buffer; meta: GeneratedImageMeta }> {
+    if (!this.initialized) {
+      // Ensure pipeline is configured on first use
+      autoConfigurePipeline();
+      this.langchainAdapter = pipelineConfig.adapters.image;
+      this.initialized = true;
+    }
+
+    // Convert ImagePromptSpec to ImageGenerateInput (LangChain format)
+    const langchainInput = {
+      id: spec.id,
+      purpose: spec.purpose,
+      prompt: spec.prompt,
+      aspect: this.mapAspectRatio(spec.aspect),
+      negativePrompt: spec.negativePrompt,
+      guidance: spec.guidance,
+    };
+
+    // Generate image using LangChain adapter (returns URL)
+    const langchainOutput = await this.langchainAdapter.generate(langchainInput);
+
+    // Fetch image data from URL and convert to Buffer
+    const imageResponse = await fetch(langchainOutput.url);
+    if (!imageResponse.ok) {
+      throw new Error(`Failed to fetch generated image: ${imageResponse.status} ${imageResponse.statusText}`);
+    }
+
+    const arrayBuffer = await imageResponse.arrayBuffer();
+    const data = Buffer.from(arrayBuffer);
+
+    // Return in format expected by ImageGenerationService
+    return {
+      data,
+      meta: {
+        model: 'dall-e-3',
+        seed: langchainOutput.id,
+        width: langchainOutput.width,
+        height: langchainOutput.height,
+      },
+    };
+  }
+
+  /**
+   * Maps aspect ratio from ImageGenerationService format to LangChain format
+   */
+  private mapAspectRatio(aspect: ImagePromptSpec['aspect']): '1:1' | '3:2' | '4:3' | '16:9' | '2:3' | '3:4' {
+    const aspectMap: Record<ImagePromptSpec['aspect'], '1:1' | '3:2' | '4:3' | '16:9' | '2:3' | '3:4'> = {
+      '1:1': '1:1',
+      '3:2': '3:2',
+      '4:3': '4:3',
+      '2:3': '2:3',
+      '9:16': '2:3', // Map 9:16 (portrait) to closest portrait ratio supported by LangChain
+    };
+
+    // Log approximation for transparency
+    if (aspect === '9:16') {
+      logger.info('Aspect ratio approximated for LangChain compatibility', {
+        requested: aspect,
+        mapped: '2:3',
+        note: 'LangChain does not support 9:16, using closest portrait ratio 2:3',
+      });
+    }
+
+    return aspectMap[aspect];
+  }
+}

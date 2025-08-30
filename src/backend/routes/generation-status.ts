@@ -110,6 +110,18 @@ async function getGenerationStatus(query: Record<string, unknown>): Promise<Gene
   if (generation.description) {
     response.description = generation.description;
   }
+  if (generation.preview_url) {
+    response.previewUrl = generation.preview_url;
+  }
+  if (generation.preview_width) {
+    response.previewWidth = generation.preview_width;
+  }
+  if (generation.preview_height) {
+    response.previewHeight = generation.preview_height;
+  }
+  if (generation.preview_format) {
+    response.previewFormat = generation.preview_format;
+  }
   if (generation.error) {
     response.error = generation.error;
   }
@@ -124,7 +136,11 @@ async function getGenerationStatus(query: Record<string, unknown>): Promise<Gene
  * Handle errors for generation status API
  */
 function handleGenerationStatusError(error: unknown, res: VercelResponse): void {
-  console.error('❌ Generation status API error:', error);
+  logger.error('Generation status API error', {
+    error: error instanceof Error ? error.message : String(error),
+    stack: error instanceof Error ? error.stack : undefined,
+    errorType: error?.constructor?.name || typeof error,
+  });
 
   if (error instanceof z.ZodError) {
     res.status(400).json({

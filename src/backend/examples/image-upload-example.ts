@@ -1,6 +1,8 @@
 #!/usr/bin/env tsx
+
 // Example demonstrating the clean uploadImage API with centralized deduplication
 
+import { createHash } from 'node:crypto';
 import { MockImageModelAdapter, uploadImage } from '#backend/lib/image-generation.js';
 
 async function demonstrateImageUpload() {
@@ -64,8 +66,7 @@ async function demonstrateImageUpload() {
     // Example 3: Using pre-computed checksum (avoids re-hashing)
     console.log('\n🔄 Example 3: Upload with pre-computed checksum');
 
-    const crypto = await import('node:crypto');
-    const precomputedChecksum = crypto.createHash('sha256').update(imageBuffer).digest('hex');
+    const precomputedChecksum = createHash('sha256').update(imageBuffer).digest('hex');
 
     const result3 = await uploadImage({
       generationId: '550e8400-e29b-41d4-a716-446655440001', // Different UUID

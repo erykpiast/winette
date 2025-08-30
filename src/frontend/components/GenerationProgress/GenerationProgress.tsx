@@ -1,9 +1,132 @@
 import type { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
+import { RenderedLabel } from '#components/RenderedLabel';
 import type { WineInputFormData } from '#hooks/useWineFormValidation';
-import type { GenerationStatus } from '#hooks/useWineLabelGeneration';
+import type { DesignScheme, GenerationStatus, LabelDSL } from '#hooks/useWineLabelGeneration';
 import * as styles from './GenerationProgress.css';
 import loaderSvg from './loader.svg';
+
+// Helper component for rendered label completion state
+function RenderedLabelCompletion({
+  status,
+  formData,
+  onRestart,
+  onCancel,
+  t,
+}: {
+  status: GenerationStatus;
+  formData: WineInputFormData;
+  onRestart: () => void;
+  onCancel: () => void;
+  t: (key: string) => string;
+}): ReactElement {
+  return (
+    <div className={styles.completedContainer}>
+      <h2 className={styles.successTitle}>🎉 {t('generation.labelCompleted')}</h2>
+
+      <RenderedLabel
+        previewUrl={status.previewUrl!}
+        {...(status.previewWidth && { width: status.previewWidth })}
+        {...(status.previewHeight && { height: status.previewHeight })}
+        {...(status.previewFormat && { format: status.previewFormat })}
+        wineDetails={{
+          producerName: formData.producerName,
+          wineName: formData.wineName,
+          vintage: formData.vintage,
+          region: formData.region,
+          variety: formData.wineVariety || undefined,
+        }}
+      />
+
+      <div className={styles.actions}>
+        <button type="button" className={styles.primaryButton} onClick={onRestart}>
+          {t('generation.actions.another')}
+        </button>
+        <button type="button" className={styles.secondaryButton} onClick={onCancel}>
+          {t('generation.actions.edit')}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Helper component for DSL completion state
+function DSLCompletion({
+  description,
+  onRestart,
+  onCancel,
+  t,
+}: {
+  description: LabelDSL;
+  onRestart: () => void;
+  onCancel: () => void;
+  t: (key: string) => string;
+}): ReactElement {
+  const { palette, typography } = description;
+  return (
+    <div className={styles.completedContainer}>
+      <h2 className={styles.successTitle}>✅ {t('generation.completedTitle')}</h2>
+      <div className={styles.resultSummary}>
+        <p>
+          <strong>{t('generation.result.temperatureLabel')}:</strong> {palette.temperature}
+        </p>
+        <p>
+          <strong>{t('generation.result.paletteLabel')}:</strong> {palette.primary} + {palette.secondary}
+        </p>
+        <p>
+          <strong>{t('generation.result.typographyLabel')}:</strong> {typography.primary.family}
+        </p>
+      </div>
+      <div className={styles.actions}>
+        <button type="button" className={styles.primaryButton} onClick={onRestart}>
+          {t('generation.actions.another')}
+        </button>
+        <button type="button" className={styles.secondaryButton} onClick={onCancel}>
+          {t('generation.actions.edit')}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Helper component for design scheme completion state
+function DesignSchemeCompletion({
+  designScheme,
+  onRestart,
+  onCancel,
+  t,
+}: {
+  designScheme: DesignScheme;
+  onRestart: () => void;
+  onCancel: () => void;
+  t: (key: string) => string;
+}): ReactElement {
+  const { palette, typography } = designScheme;
+  return (
+    <div className={styles.completedContainer}>
+      <h2 className={styles.successTitle}>✅ {t('generation.designCompleted')}</h2>
+      <div className={styles.resultSummary}>
+        <p>
+          <strong>{t('generation.result.temperatureLabel')}:</strong> {palette.temperature}
+        </p>
+        <p>
+          <strong>{t('generation.result.paletteLabel')}:</strong> {palette.primary.name} + {palette.secondary.name}
+        </p>
+        <p>
+          <strong>{t('generation.result.typographyLabel')}:</strong> {typography.primary.family}
+        </p>
+      </div>
+      <div className={styles.actions}>
+        <button type="button" className={styles.primaryButton} onClick={onRestart}>
+          {t('generation.actions.another')}
+        </button>
+        <button type="button" className={styles.secondaryButton} onClick={onCancel}>
+          {t('generation.actions.edit')}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export interface GenerationProgressProps {
   formData: WineInputFormData;
@@ -34,64 +157,24 @@ export function GenerationProgress({
 
   // Show completed state - handle both design scheme and full DSL
   if (isCompleted) {
+    // Check if we have a rendered label preview
+    const hasRenderedLabel = status && 'previewUrl' in status && status.previewUrl;
+
+    // Prefer rendered label if available
+    if (hasRenderedLabel) {
+      return (
+        <RenderedLabelCompletion status={status} formData={formData} onRestart={onRestart} onCancel={onCancel} t={t} />
+      );
+    }
+
     // Prefer full DSL if available, fall back to design scheme
     const description = status && 'description' in status ? status.description : null;
     const designScheme = status && 'designScheme' in status ? status.designScheme : null;
 
     if (description) {
-      // Full DSL available - detailed-layout phase complete
-      const { palette, typography } = description;
-      return (
-        <div className={styles.completedContainer}>
-          <h2 className={styles.successTitle}>✅ {t('generation.completedTitle')}</h2>
-          <div className={styles.resultSummary}>
-            <p>
-              <strong>{t('generation.result.temperatureLabel')}:</strong> {palette.temperature}
-            </p>
-            <p>
-              <strong>{t('generation.result.paletteLabel')}:</strong> {palette.primary} + {palette.secondary}
-            </p>
-            <p>
-              <strong>{t('generation.result.typographyLabel')}:</strong> {typography.primary.family}
-            </p>
-          </div>
-          <div className={styles.actions}>
-            <button type="button" className={styles.primaryButton} onClick={onRestart}>
-              {t('generation.actions.another')}
-            </button>
-            <button type="button" className={styles.secondaryButton} onClick={onCancel}>
-              {t('generation.actions.edit')}
-            </button>
-          </div>
-        </div>
-      );
+      return <DSLCompletion description={description} onRestart={onRestart} onCancel={onCancel} t={t} />;
     } else if (designScheme) {
-      // Only design scheme available - design-scheme phase complete
-      const { palette, typography } = designScheme;
-      return (
-        <div className={styles.completedContainer}>
-          <h2 className={styles.successTitle}>✅ {t('generation.designCompleted')}</h2>
-          <div className={styles.resultSummary}>
-            <p>
-              <strong>{t('generation.result.temperatureLabel')}:</strong> {palette.temperature}
-            </p>
-            <p>
-              <strong>{t('generation.result.paletteLabel')}:</strong> {palette.primary.name} + {palette.secondary.name}
-            </p>
-            <p>
-              <strong>{t('generation.result.typographyLabel')}:</strong> {typography.primary.family}
-            </p>
-          </div>
-          <div className={styles.actions}>
-            <button type="button" className={styles.primaryButton} onClick={onRestart}>
-              {t('generation.actions.another')}
-            </button>
-            <button type="button" className={styles.secondaryButton} onClick={onCancel}>
-              {t('generation.actions.edit')}
-            </button>
-          </div>
-        </div>
-      );
+      return <DesignSchemeCompletion designScheme={designScheme} onRestart={onRestart} onCancel={onCancel} t={t} />;
     }
   }
 

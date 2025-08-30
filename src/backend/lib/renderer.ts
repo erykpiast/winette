@@ -14,13 +14,12 @@ export async function renderToPng(dsl: LabelDSL, options: RenderOptions = {}): P
 
   try {
     browser = await puppeteer.launch({
-      args: process.env.NODE_ENV === 'production' 
-        ? chromium.args
-        : ['--no-sandbox', '--disable-setuid-sandbox'],
+      args: process.env.NODE_ENV === 'production' ? chromium.args : ['--no-sandbox', '--disable-setuid-sandbox'],
       defaultViewport: { width: 1280, height: 1024 },
-      executablePath: process.env.NODE_ENV === 'production' 
-        ? await chromium.executablePath()
-        : '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+      executablePath:
+        process.env.NODE_ENV === 'production'
+          ? await chromium.executablePath()
+          : '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
       headless: true,
     });
 

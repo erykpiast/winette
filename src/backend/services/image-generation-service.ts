@@ -1,11 +1,13 @@
 // Phase 1.3.4.3: Image Generation Service
 // Main service that coordinates image generation, storage, and DSL updates
 
+import { createHash } from 'node:crypto';
 import { supabase } from '#backend/lib/database.js';
 import {
   type ImageModelAdapter,
   type ImagePromptSpec,
   MockImageModelAdapter,
+  ProductionImageModelAdapter,
   uploadImage,
 } from '#backend/lib/image-generation.js';
 
@@ -36,6 +38,13 @@ export class ImageGenerationService {
   constructor(config: ImageGenerationConfig) {
     this.adapter = config.adapter;
     this.maxConcurrentGenerations = config.maxConcurrentGenerations || 3;
+  }
+
+  /**
+   * Get the current adapter (primarily for testing)
+   */
+  get currentAdapter(): ImageModelAdapter {
+    return this.adapter;
   }
 
   /**
@@ -123,8 +132,7 @@ export class ImageGenerationService {
       const { data, meta } = await this.adapter.generate(spec);
 
       // Step 2: Calculate checksum once (avoids double hashing in uploadImage)
-      const crypto = await import('node:crypto');
-      const checksum = crypto.createHash('sha256').update(data).digest('hex');
+      const checksum = createHash('sha256').update(data).digest('hex');
 
       // Step 3: Upload image with pre-computed checksum and all metadata
       const uploadResult = await uploadImage({
@@ -207,9 +215,20 @@ export class ImageGenerationService {
 // Default Service Instance
 // ============================================================================
 
-// Create a default service instance with mock adapter
+// Create a default service instance with environment-appropriate adapter
+function createDefaultAdapter(): ImageModelAdapter {
+  const isProduction = process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging';
+  const hasApiKeys = process.env.OPENAI_API_KEY && process.env.ANTHROPIC_API_KEY;
+
+  if (isProduction && hasApiKeys) {
+    return new ProductionImageModelAdapter();
+  } else {
+    return new MockImageModelAdapter();
+  }
+}
+
 export const defaultImageGenerationService = new ImageGenerationService({
-  adapter: new MockImageModelAdapter(),
+  adapter: createDefaultAdapter(),
   maxConcurrentGenerations: 3,
 });
 

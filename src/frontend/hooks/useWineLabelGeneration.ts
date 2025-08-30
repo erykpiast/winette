@@ -2,6 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { ApiClientError, apiClient } from '#lib/api-client';
 import { reportApiError } from '#lib/error-reporting';
+import type { GenerationPhase, GenerationStatusType, ImageFormat } from '#types/shared';
 import type { WineInputFormData } from './useWineFormValidation';
 
 // Backend API response types (from Phase 1.3.2)
@@ -15,10 +16,14 @@ interface SubmitWineLabelResponse {
 export interface GenerationStatus {
   id: string;
   submissionId: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
-  phase?: 'design-scheme' | 'image-prompts' | 'image-generate' | 'detailed-layout' | 'render' | 'refine';
+  status: GenerationStatusType;
+  phase?: GenerationPhase;
   designScheme?: DesignScheme;
   description?: LabelDSL;
+  previewUrl?: string;
+  previewWidth?: number;
+  previewHeight?: number;
+  previewFormat?: ImageFormat;
   error?: string;
   createdAt: string;
   updatedAt: string;
@@ -27,7 +32,7 @@ export interface GenerationStatus {
 
 // Phase 1: Design Scheme (high-level design description)
 // Using the same structure as the backend but duplicated for frontend independence
-interface DesignScheme {
+export interface DesignScheme {
   palette: {
     primary: { hex: string; rgb: [number, number, number]; name: string };
     secondary: { hex: string; rgb: [number, number, number]; name: string };
@@ -82,7 +87,7 @@ interface DesignScheme {
 }
 
 // Label DSL type for Phase 1.3.4.2
-interface LabelDSL {
+export interface LabelDSL {
   version: '1';
   canvas: {
     width: number;

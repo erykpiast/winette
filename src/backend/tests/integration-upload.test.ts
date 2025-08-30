@@ -1,7 +1,18 @@
 // Integration tests for real upload with URL and header validation
 // These tests require SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables
 
-import { beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
+
+// Mock logger to prevent NewRelic errors in tests
+vi.mock('#backend/lib/logger.js', () => ({
+  logger: {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+  },
+}));
+
 import { supabase } from '#backend/lib/database.js';
 import { MockImageModelAdapter, uploadImage } from '#backend/lib/image-generation.js';
 import { initializeImageStorage } from '#backend/lib/image-storage.js';

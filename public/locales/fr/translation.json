@@ -169,6 +169,8 @@
       "failed": "Échec"
     },
     "completedTitle": "La description de votre étiquette est prête !",
+    "labelCompleted": "Votre étiquette de vin est prête !",
+    "designCompleted": "Schéma de conception d'étiquette terminé",
     "failedTitle": "Nous n'avons pas pu compléter votre demande",
     "actions": {
       "cancel": "Annuler et modifier",
@@ -207,6 +209,20 @@
     },
     "validation": {
       "failed": "Échec de la validation"
+    }
+  },
+  "renderedLabel": {
+    "title": "Votre Étiquette de Vin",
+    "loading": "Chargement de votre étiquette...",
+    "download": "Télécharger l'Étiquette",
+    "alt": "Étiquette de vin pour {{producer}} {{wine}}",
+    "error": {
+      "failed": "Échec du chargement de l'image d'étiquette rendue"
+    },
+    "details": {
+      "dimensions": "Dimensions",
+      "region": "Région",
+      "variety": "Cépage"
     }
   }
 }

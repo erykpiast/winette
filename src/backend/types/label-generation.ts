@@ -12,6 +12,10 @@ export interface LabelGeneration {
   phase?: 'design-scheme' | 'image-prompts' | 'image-generate' | 'detailed-layout' | 'render' | 'refine'; // Current pipeline phase
   designScheme?: DesignSchema.DesignSchema; // Output of design-scheme step
   description?: LabelDSL; // Final DSL output when detailed-layout complete
+  previewUrl?: string; // URL to rendered label preview (set when render phase completes)
+  previewWidth?: number; // Width of rendered preview in pixels
+  previewHeight?: number; // Height of rendered preview in pixels
+  previewFormat?: 'PNG' | 'JPEG' | 'WebP'; // Format of rendered preview
   error?: string; // Error message if failed
   createdAt: Date;
   updatedAt: Date;
@@ -50,6 +54,10 @@ export interface GenerationStatusResponse {
   phase?: 'design-scheme' | 'image-prompts' | 'image-generate' | 'detailed-layout' | 'render' | 'refine';
   designScheme?: DesignSchema.DesignSchema; // Present when design-scheme phase complete
   description?: LabelDSL; // Present when detailed-layout phase complete
+  previewUrl?: string; // Present when render phase complete
+  previewWidth?: number; // Present when render phase complete
+  previewHeight?: number; // Present when render phase complete
+  previewFormat?: 'PNG' | 'JPEG' | 'WebP'; // Present when render phase complete
   error?: string; // Present if failed
   createdAt: Date;
   updatedAt: Date;

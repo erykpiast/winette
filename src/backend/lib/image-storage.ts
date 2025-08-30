@@ -1,5 +1,6 @@
 // Phase 1.3.4.3: Image Storage Management and CDN Setup
 
+import { createHash } from 'node:crypto';
 import { supabase } from './database.js';
 import { logger } from './logger.js';
 
@@ -121,4 +122,87 @@ export function getPublicUrl(path: string): string | null {
   const { data } = supabase.storage.from('label-images').getPublicUrl(path);
 
   return data.publicUrl;
+}
+
+// ============================================================================
+// Rendered Label Storage
+// ============================================================================
+
+/**
+ * Upload rendered label preview to Supabase storage and return public URL.
+ * Uses content-addressable storage for deduplication.
+ */
+export async function uploadRenderedLabel(
+  imageBuffer: Buffer,
+  generationId: string,
+): Promise<{ publicUrl: string; checksum: string }> {
+  if (!supabase) {
+    throw new Error('Supabase client not initialized');
+  }
+
+  try {
+    // Calculate checksum for content-addressable storage
+    const checksum = createHash('sha256').update(imageBuffer).digest('hex');
+
+    // Use content-addressable path to enable deduplication
+    const filePath = getContentAddressablePath(checksum, 'png');
+
+    // Check if file already exists
+    const { data: existingFile } = await supabase.storage.from('label-images').list('content', {
+      limit: 1,
+      search: `${checksum}.png`,
+    });
+
+    if (existingFile && existingFile.length > 0) {
+      // File already exists, return existing URL
+      const publicUrl = getPublicUrl(filePath);
+      if (!publicUrl) {
+        throw new Error('Failed to get public URL for existing file');
+      }
+
+      logger.info('Rendered label already exists, using cached version', {
+        generationId,
+        checksum: checksum.substring(0, 12),
+        publicUrl,
+      });
+
+      return { publicUrl, checksum };
+    }
+
+    // Upload new file
+    const { error: uploadError } = await supabase.storage.from('label-images').upload(filePath, imageBuffer, {
+      contentType: 'image/png',
+      cacheControl: 'public, max-age=31536000, immutable',
+      upsert: false, // Never overwrite - content-addressable paths are unique
+    });
+
+    if (uploadError) {
+      logger.error('Failed to upload rendered label', {
+        error: uploadError,
+        generationId,
+        checksum: checksum.substring(0, 12),
+      });
+      throw new Error(`Upload failed: ${uploadError.message}`);
+    }
+
+    const publicUrl = getPublicUrl(filePath);
+    if (!publicUrl) {
+      throw new Error('Failed to get public URL for uploaded file');
+    }
+
+    logger.info('Rendered label uploaded successfully', {
+      generationId,
+      checksum: checksum.substring(0, 12),
+      publicUrl,
+      size: imageBuffer.length,
+    });
+
+    return { publicUrl, checksum };
+  } catch (error) {
+    logger.error('Failed to upload rendered label', {
+      error,
+      generationId,
+    });
+    throw error;
+  }
 }
