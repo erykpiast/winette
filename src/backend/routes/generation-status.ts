@@ -124,7 +124,11 @@ async function getGenerationStatus(query: Record<string, unknown>): Promise<Gene
  * Handle errors for generation status API
  */
 function handleGenerationStatusError(error: unknown, res: VercelResponse): void {
-  console.error('❌ Generation status API error:', error);
+  logger.error('Generation status API error', {
+    error: error instanceof Error ? error.message : String(error),
+    stack: error instanceof Error ? error.stack : undefined,
+    errorType: error?.constructor?.name || typeof error,
+  });
 
   if (error instanceof z.ZodError) {
     res.status(400).json({

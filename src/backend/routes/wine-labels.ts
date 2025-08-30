@@ -178,6 +178,32 @@ async function getWineLabelsData(query: { style?: string; region?: string; limit
   logger.recordMetric('wine_labels/cache_miss', 1);
 
   if (error) {
+    // Handle "Requested range not satisfiable" error gracefully
+    if (error.code === 'PGRST103') {
+      logger.info('Pagination offset exceeds available data', {
+        operation: 'handleGetWineLabels',
+        requestedOffset: validatedQuery.offset,
+        requestedLimit: validatedQuery.limit,
+        errorCode: error.code,
+        errorMessage: error.message,
+      });
+
+      // Return empty result set for out-of-range pagination
+      const emptyResult = {
+        data: [],
+        total: 0,
+        hasMore: false,
+      };
+
+      logger.recordMetric('wine_labels/pagination_out_of_range', 1);
+
+      return {
+        success: true,
+        ...emptyResult,
+        cached: false,
+      };
+    }
+
     const errorContext = {
       message: error.message,
       details: error.details || '',
@@ -361,7 +387,11 @@ async function handleSubmitWineLabel(req: VercelRequest): Promise<SubmitWineLabe
  * Handle errors for wine labels API
  */
 function handleWineLabelsError(error: unknown, res: VercelResponse): void {
-  console.error('❌ Wine labels API error:', error);
+  logger.error('Wine labels API error', {
+    error: error instanceof Error ? error.message : String(error),
+    stack: error instanceof Error ? error.stack : undefined,
+    errorType: error?.constructor?.name || typeof error,
+  });
 
   if (error instanceof z.ZodError) {
     res.status(400).json({

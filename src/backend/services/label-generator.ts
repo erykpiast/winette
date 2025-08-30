@@ -1,10 +1,13 @@
 import { z } from 'zod';
 import { supabase } from '../lib/database.js';
 import { logger } from '../lib/logger.js';
+import { renderToPng } from '../lib/renderer.js';
 import type { LabelDSL, LabelGenerationJob } from '../types/label-generation.js';
 import { LabelDSLSchema } from '../types/label-generation.js';
+import { refineLabel } from './dsl-edit-service.js';
 import { defaultImageGenerationService, type ImagePromptSpec } from './image-generation-service.js';
 import { generateMockLabelDSL } from './mock-data-generator.js';
+import { defaultLayoutVisionRefiner } from './vision-refiner-adapter.js';
 
 // Step identifiers for orchestration
 export type OrchestratorStep =
@@ -233,31 +236,77 @@ export async function runLabelOrchestrator(params: {
     // Step 5: render
     currentStep = 'render';
     await upsertStepRow(generationId, currentStep, 'pending');
-    await claimStep(generationId, currentStep, { layoutId: detailedLayoutOutput.layoutId });
-    const renderOutput = RenderOutputSchema.parse({
-      previewUrl: `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==`,
-    });
+    await claimStep(generationId, currentStep, { layoutId: detailedLayoutOutput.layoutId, labelDSL });
+
+    // Render the DSL to PNG
+    const renderBuffer = await renderToPng(labelDSL, { timeout: 15000 });
+    const previewUrl = `data:image/png;base64,${renderBuffer.toString('base64')}`;
+
+    const renderOutput = RenderOutputSchema.parse({ previewUrl });
     await upsertStepRow(generationId, currentStep, 'completed', {
       completed_at: new Date().toISOString(),
       output: renderOutput,
     });
 
-    // Step 6: refine (optional, no-op mock)
+    // Step 6: refine (multimodal refinement loop)
     currentStep = 'refine';
     await upsertStepRow(generationId, currentStep, 'pending');
-    await claimStep(generationId, currentStep, { previewUrl: renderOutput.previewUrl });
-    const refineOutput = RefineOutputSchema.parse({ refined: false });
+    await claimStep(generationId, currentStep, {
+      previewUrl: renderOutput.previewUrl,
+      originalDSL: labelDSL,
+    });
+
+    let finalDSL = labelDSL;
+    let refined = false;
+    let refinementNotes = 'No refinement needed';
+
+    try {
+      // Get edit suggestions from vision refiner
+      const rawEdits = await defaultLayoutVisionRefiner.refineLabel({
+        submissionText: `${job.wineData.producerName} ${job.wineData.wineName} ${job.wineData.vintage} - ${job.wineData.variety} from ${job.wineData.region}, ${job.wineData.appellation}`,
+        dsl: labelDSL,
+        previewUrl: renderOutput.previewUrl,
+      });
+
+      if (rawEdits.length > 0) {
+        // Apply refinement edits to DSL
+        const refinementResult = refineLabel(labelDSL, rawEdits);
+
+        if (refinementResult.applyResult.appliedEdits.length > 0) {
+          finalDSL = refinementResult.updatedDSL;
+          refined = true;
+          refinementNotes = `Applied ${refinementResult.applyResult.appliedEdits.length} edits, rejected ${refinementResult.validationResult.rejectedEdits.length}, clamped ${refinementResult.validationResult.clampedEdits.length}`;
+
+          logger.info('Label refinement applied', {
+            generationId,
+            appliedEdits: refinementResult.applyResult.appliedEdits.length,
+            rejectedEdits: refinementResult.validationResult.rejectedEdits.length,
+          });
+        }
+      }
+    } catch (error) {
+      logger.warn('Vision refinement failed, using original DSL', {
+        generationId,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+      refinementNotes = `Refinement failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
+    }
+
+    const refineOutput = RefineOutputSchema.parse({
+      refined,
+      notes: refinementNotes,
+    });
     await upsertStepRow(generationId, currentStep, 'completed', {
       completed_at: new Date().toISOString(),
       output: refineOutput,
     });
 
-    // Finalize generation with label DSL
+    // Finalize generation with refined label DSL
     const { error: updateError } = await supabase
       .from('label_generations')
       .update({
         status: 'completed',
-        description: labelDSL,
+        description: finalDSL,
         completed_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })
